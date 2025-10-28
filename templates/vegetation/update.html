@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<title>Vegetation Update Form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Vegetation Update Form</h2></center>
+</div>
+
+<form class="form" method="POST" action="{{ url_for('vegetation_update', id=vegetation.vi_id) }}">
+  <p>
+    <label>Vegetation ID</label>
+    <input class="input" type="text" id="vi_id" name="vi_id" value="{{ vegetation.vi_id }}" readonly>
+  </p>
+  <p>
+    <label>Field Location</label>
+    <input class="input" type="text" id="field_location" name="field_location" value="{{ vegetation.field_location }}" required>
+  </p>
+  <p>
+    <label>Measure Date</label>
+    <input class="input" type="date" id="measure_date" name="measure_date" value="{{ vegetation.measure_date }}" required>
+  </p>
+  <p>
+    <label>NDVI Value</label>
+    <input class="input" type="number" step="0.01" id="ndvi_value" name="ndvi_value" value="{{ vegetation.ndvi_value }}" required>
+  </p>
+  <p>
+    <label>Crop Health</label>
+    <select class="input" id="crop_health" name="crop_health" required>
+      <option value="Excellent" {% if vegetation.crop_health == 'Excellent' %}selected{% endif %}>Excellent</option>
+      <option value="Good" {% if vegetation.crop_health == 'Good' %}selected{% endif %}>Good</option>
+      <option value="Fair" {% if vegetation.crop_health == 'Fair' %}selected{% endif %}>Fair</option>
+      <option value="Poor" {% if vegetation.crop_health == 'Poor' %}selected{% endif %}>Poor</option>
+    </select>
+  </p>
+  <p>
+    <label>Notes</label>
+    <textarea class="input" id="notes" name="notes" rows="4">{{ vegetation.notes }}</textarea>
+  </p>
+  <p>
+    <button type="submit">Update</button>
+    <a href="{{ url_for('vegetation_list') }}" class="button">Cancel</a>
+  </p>
+</form>
+
+</body>
+</html>

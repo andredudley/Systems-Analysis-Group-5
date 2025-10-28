@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<title>Vegetation Delete Confirmation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Vegetation Delete Confirmation</h2></center>
+</div>
+
+<div class="confirmation-container">
+  <p>Are you sure you want to delete this vegetation data?</p>
+  <div class="details">
+    <p><strong>ID:</strong> {{ vegetation.vi_id }}</p>
+    <p><strong>Field Location:</strong> {{ vegetation.field_location }}</p>
+    <p><strong>Measure Date:</strong> {{ vegetation.measure_date }}</p>
+    <p><strong>NDVI Value:</strong> {{ vegetation.ndvi_value }}</p>
+  </div>
+  
+  <form class="form" method="POST" action="{{ url_for('vegetation_delete', id=vegetation.vi_id) }}">
+    <p>
+      <button type="submit" class="danger">Yes, Delete</button>
+      <a href="{{ url_for('vegetation_list') }}" class="button">Cancel</a>
+    </p>
+  </form>
+</div>
+
+</body>
+</html>

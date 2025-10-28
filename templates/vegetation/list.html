@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<title>Vegetation List</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> 
+    <h2>Vegetation List</h2>
+    <div class="action-buttons">
+      <a href="{{ url_for('vegetation_create') }}" class="button">Add New Vegetation</a>
+      <a href="{{ url_for('vegetation_search') }}" class="button">Search Vegetation</a>
+    </div>
+  </center>
+</div>
+
+<div class="table-container">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Field Location</th>
+        <th>Measure Date</th>
+        <th>NDVI Value</th>
+        <th>Crop Health</th>
+        <th>Notes</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for veg in vegetation %}
+      <tr>
+        <td>{{ veg.vi_id }}</td>
+        <td>{{ veg.field_location }}</td>
+        <td>{{ veg.measure_date }}</td>
+        <td>{{ veg.ndvi_value }}</td>
+        <td>{{ veg.crop_health }}</td>
+        <td>{{ veg.notes[:50] }}{% if veg.notes|length > 50 %}...{% endif %}</td>
+        <td>
+          <a href="{{ url_for('vegetation_update', id=veg.vi_id) }}" class="button">Edit</a>
+          <a href="{{ url_for('vegetation_delete', id=veg.vi_id) }}" class="button danger">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<title>Vegetation Search</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Vegetation Search</h2></center>
+</div>
+
+<form class="form" method="GET" action="{{ url_for('vegetation_search') }}">
+  <p>
+    <label>Search Query</label>
+    <input class="input" type="text" id="q" name="q" value="{{ query }}" placeholder="Search by field location or crop health">
+  </p>
+  <p>
+    <button type="submit">Search</button>
+    <a href="{{ url_for('vegetation_list') }}" class="button">Back to List</a>
+  </p>
+</form>
+
+{% if results %}
+<div class="table-container">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Field Location</th>
+        <th>Measure Date</th>
+        <th>NDVI Value</th>
+        <th>Crop Health</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for veg in results %}
+      <tr>
+        <td>{{ veg.vi_id }}</td>
+        <td>{{ veg.field_location }}</td>
+        <td>{{ veg.measure_date }}</td>
+        <td>{{ veg.ndvi_value }}</td>
+        <td>{{ veg.crop_health }}</td>
+        <td>
+          <a href="{{ url_for('vegetation_update', id=veg.vi_id) }}" class="button">Edit</a>
+          <a href="{{ url_for('vegetation_delete', id=veg.vi_id) }}" class="button danger">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% elif query %}
+<div class="message">
+  <p>No results found for "{{ query }}"</p>
+</div>
+{% endif %}
+
+</body>
+</html>

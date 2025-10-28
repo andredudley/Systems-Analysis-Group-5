@@ -1021,3 +1021,219 @@ body {
         border: 1px solid #ccc;
     }
 }
+/* Submit Button Styling */
+button[type="submit"],
+button[type="button"],
+input[type="submit"] {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--transition);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    font-size: 1rem;
+    box-shadow: var(--shadow);
+    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--light-green) 100%);
+    color: white;
+    border: 2px solid var(--accent-green);
+    font-family: var(--font-main);
+}
+
+button[type="submit"]::before,
+button[type="button"]::before,
+input[type="submit"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: var(--transition);
+}
+
+button[type="submit"]:hover::before,
+button[type="button"]:hover::before,
+input[type="submit"]:hover::before {
+    left: 100%;
+}
+
+button[type="submit"]:hover,
+button[type="button"]:hover,
+input[type="submit"]:hover {
+    background: linear-gradient(135deg, var(--light-green) 0%, var(--secondary-green) 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+button[type="submit"]:active,
+button[type="button"]:active,
+input[type="submit"]:active {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Specific styling for form submit buttons */
+.form button[type="submit"],
+.form input[type="submit"] {
+    margin-right: 0.5rem;
+    min-width: 120px;
+    justify-content: center;
+}
+
+/* Cancel/Secondary buttons in forms */
+.form .button.secondary,
+.form a.button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    border: 2px solid var(--primary-brown);
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--transition);
+    cursor: pointer;
+    font-size: 1rem;
+    box-shadow: var(--shadow);
+    background: transparent;
+    color: var(--primary-brown);
+    font-family: var(--font-main);
+    min-width: 120px;
+    justify-content: center;
+}
+
+.form .button.secondary:hover,
+.form a.button:hover {
+    background: var(--primary-brown);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Form action buttons container */
+.form-actions button[type="submit"],
+.form-actions .button {
+    margin: 0.25rem;
+}
+
+/* Delete confirmation buttons */
+.confirmation-container button[type="submit"].danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    border: 2px solid #ff6b7a;
+    color: white;
+}
+
+.confirmation-container button[type="submit"].danger:hover {
+    background: linear-gradient(135deg, #c82333 0%, #dc3545 100%);
+    transform: translateY(-3px);
+}
+
+/* Search form buttons */
+.form[method="GET"] button[type="submit"] {
+    background: linear-gradient(135deg, var(--primary-brown) 0%, var(--light-brown) 100%);
+    border: 2px solid var(--accent-brown);
+}
+
+.form[method="GET"] button[type="submit"]:hover {
+    background: linear-gradient(135deg, var(--light-brown) 0%, var(--primary-brown) 100%);
+}
+
+/* Button icons */
+button[type="submit"] i,
+.button i {
+    font-size: 0.9em;
+}
+
+/* Focus states for accessibility */
+button[type="submit"]:focus,
+button[type="button"]:focus,
+input[type="submit"]:focus,
+.button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(74, 124, 58, 0.3);
+}
+
+/* Disabled state */
+button[type="submit"]:disabled,
+button[type="button"]:disabled,
+input[type="submit"]:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+button[type="submit"]:disabled:hover,
+button[type="button"]:disabled:hover,
+input[type="submit"]:disabled:hover {
+    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--light-green) 100%);
+    transform: none;
+    box-shadow: var(--shadow);
+}
+
+/* Small submit buttons for tables */
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    min-width: auto;
+}
+
+/* Login form specific submit button */
+.login-form button[type="submit"] {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+/* Hero section buttons */
+.hero-buttons .btn {
+    min-width: 150px;
+}
+
+/* Dashboard action buttons */
+.header-actions .btn {
+    min-width: 160px;
+}
+
+/* Responsive adjustments for buttons */
+@media (max-width: 768px) {
+    button[type="submit"],
+    button[type="button"],
+    input[type="submit"],
+    .button {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .form-actions button[type="submit"],
+    .form-actions .button {
+        margin: 0.25rem 0;
+    }
+    
+    .hero-buttons .btn,
+    .header-actions .btn {
+        min-width: auto;
+        width: 100%;
+        max-width: 250px;
+    }
+}
+
+/* Print styles for buttons */
+@media print {
+    button[type="submit"],
+    button[type="button"],
+    input[type="submit"],
+    .button {
+        display: none;
+    }
+}
