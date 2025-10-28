@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<title>Soil List</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> 
+    <h2>Soil Analysis List</h2>
+    <div class="action-buttons">
+      <a href="{{ url_for('soil_create') }}" class="button">Add New Soil Analysis</a>
+      <a href="{{ url_for('soil_search') }}" class="button">Search Soil Data</a>
+    </div>
+  </center>
+</div>
+
+<div class="table-container">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Field Location</th>
+        <th>Test Name</th>
+        <th>pH Level</th>
+        <th>Nitrogen</th>
+        <th>Phosphorus</th>
+        <th>Potassium</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for soil in soil_data %}
+      <tr>
+        <td>{{ soil.analysis_id }}</td>
+        <td>{{ soil.field_location }}</td>
+        <td>{{ soil.test_name }}</td>
+        <td>{{ soil.ph_level }}</td>
+        <td>{{ soil.nitrogen }}</td>
+        <td>{{ soil.phosphorus }}</td>
+        <td>{{ soil.potassium }}</td>
+        <td>
+          <a href="{{ url_for('soil_update', id=soil.analysis_id) }}" class="button">Edit</a>
+          <a href="{{ url_for('soil_delete', id=soil.analysis_id) }}" class="button danger">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<title>Soil Create Form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Soil Create Form</h2></center>
+</div>
+
+<form class="form" method="POST" action="{{ url_for('soil_create') }}">
+  <p>
+    <label>Field Location</label>
+    <input class="input" type="text" id="field_location" name="field_location" required>
+  </p>
+  <p>
+    <label>Test Name</label>
+    <input class="input" type="text" id="test_name" name="test_name" required>
+  </p>
+  <p>
+    <label>pH Level</label>
+    <input class="input" type="number" step="0.1" id="ph_level" name="ph_level" required>
+  </p>
+  <p>
+    <label>Nitrogen</label>
+    <input class="input" type="number" step="0.01" id="nitrogen" name="nitrogen">
+  </p>
+  <p>
+    <label>Phosphorus</label>
+    <input class="input" type="number" step="0.01" id="phosphorus" name="phosphorus">
+  </p>
+  <p>
+    <label>Potassium</label>
+    <input class="input" type="number" step="0.01" id="potassium" name="potassium">
+  </p>
+  <p>
+    <button type="submit">Submit</button>
+    <a href="{{ url_for('soil_list') }}" class="button">Cancel</a>
+  </p>
+</form>
+
+</body>
+</html>
