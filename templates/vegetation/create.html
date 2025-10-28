@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<title>Vegetation Create Form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Vegetation Create Form</h2></center>
+</div>
+
+<form class="form" method="POST" action="{{ url_for('vegetation_create') }}">
+  <p>
+    <label>Field Location</label>
+    <input class="input" type="text" id="field_location" name="field_location" required>
+  </p>
+  <p>
+    <label>Measure Date</label>
+    <input class="input" type="date" id="measure_date" name="measure_date" required>
+  </p>
+  <p>
+    <label>NDVI Value</label>
+    <input class="input" type="number" step="0.01" id="ndvi_value" name="ndvi_value" required>
+  </p>
+  <p>
+    <label>Crop Health</label>
+    <select class="input" id="crop_health" name="crop_health" required>
+      <option value="">Select Health Status</option>
+      <option value="Excellent">Excellent</option>
+      <option value="Good">Good</option>
+      <option value="Fair">Fair</option>
+      <option value="Poor">Poor</option>
+    </select>
+  </p>
+  <p>
+    <label>Notes</label>
+    <textarea class="input" id="notes" name="notes" rows="4"></textarea>
+  </p>
+  <p>
+    <button type="submit">Submit</button>
+    <a href="{{ url_for('vegetation_list') }}" class="button">Cancel</a>
+  </p>
+</form>
+
+</body>
+</html>
