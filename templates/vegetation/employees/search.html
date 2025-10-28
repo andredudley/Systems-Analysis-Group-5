@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<title>Employees Search</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Employees Search</h2></center>
+</div>
+
+<form class="form" method="GET" action="{{ url_for('employees_search') }}">
+  <p>
+    <label>Search Query</label>
+    <input class="input" type="text" id="q" name="q" value="{{ query }}" placeholder="Search by name or position">
+  </p>
+  <p>
+    <button type="submit">Search</button>
+    <a href="{{ url_for('employees_list') }}" class="button">Back to List</a>
+  </p>
+</form>
+
+{% if results %}
+<div class="table-container">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Position</th>
+        <th>Hire Date</th>
+        <th>Phone</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for emp in results %}
+      <tr>
+        <td>{{ emp.emp_id }}</td>
+        <td>{{ emp.FName }}</td>
+        <td>{{ emp.LName }}</td>
+        <td>{{ emp.position }}</td>
+        <td>{{ emp.hire_date }}</td>
+        <td>{{ emp.phone }}</td>
+        <td>
+          <a href="{{ url_for('employees_update', id=emp.emp_id) }}" class="button">Edit</a>
+          <a href="{{ url_for('employees_delete', id=emp.emp_id) }}" class="button danger">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% elif query %}
+<div class="message">
+  <p>No results found for "{{ query }}"</p>
+</div>
+{% endif %}
+
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<title>Employees Create Form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Employees Create Form</h2></center>
+</div>
+
+<form class="form" method="POST" action="{{ url_for('employees_create') }}">
+  <p>
+    <label>First Name</label>
+    <input class="input" type="text" id="FName" name="FName" required>
+  </p>
+  <p>
+    <label>Last Name</label>
+    <input class="input" type="text" id="LName" name="LName" required>
+  </p>
+  <p>
+    <label>Position</label>
+    <input class="input" type="text" id="position" name="position" required>
+  </p>
+  <p>
+    <label>Hire Date</label>
+    <input class="input" type="date" id="hire_date" name="hire_date" required>
+  </p>
+  <p>
+    <label>Phone</label>
+    <input class="input" type="tel" id="phone" name="phone">
+  </p>
+  <p>
+    <label>Email</label>
+    <input class="input" type="email" id="email" name="email">
+  </p>
+  <p>
+    <button type="submit">Submit</button>
+    <a href="{{ url_for('employees_list') }}" class="button">Cancel</a>
+  </p>
+</form>
+
+</body>
+</html>

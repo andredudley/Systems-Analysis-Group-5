@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<title>Employees Update Form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Employees Update Form</h2></center>
+</div>
+
+<form class="form" method="POST" action="{{ url_for('employees_update', id=employee.emp_id) }}">
+  <p>
+    <label>Employee ID</label>
+    <input class="input" type="text" id="emp_id" name="emp_id" value="{{ employee.emp_id }}" readonly>
+  </p>
+  <p>
+    <label>First Name</label>
+    <input class="input" type="text" id="FName" name="FName" value="{{ employee.FName }}" required>
+  </p>
+  <p>
+    <label>Last Name</label>
+    <input class="input" type="text" id="LName" name="LName" value="{{ employee.LName }}" required>
+  </p>
+  <p>
+    <label>Position</label>
+    <input class="input" type="text" id="position" name="position" value="{{ employee.position }}" required>
+  </p>
+  <p>
+    <label>Hire Date</label>
+    <input class="input" type="date" id="hire_date" name="hire_date" value="{{ employee.hire_date }}" required>
+  </p>
+  <p>
+    <label>Phone</label>
+    <input class="input" type="tel" id="phone" name="phone" value="{{ employee.phone }}">
+  </p>
+  <p>
+    <label>Email</label>
+    <input class="input" type="email" id="email" name="email" value="{{ employee.email }}">
+  </p>
+  <p>
+    <button type="submit">Update</button>
+    <a href="{{ url_for('employees_list') }}" class="button">Cancel</a>
+  </p>
+</form>
+
+</body>
+</html>
