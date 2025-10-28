@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<title>Sales Update Form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Sales Update Form</h2></center>
+</div>
+
+<form class="form" method="POST" action="{{ url_for('sales_update', id=sale.sale_id) }}">
+  <p>
+    <label>Sale ID</label>
+    <input class="input" type="text" id="sale_id" name="sale_id" value="{{ sale.sale_id }}" readonly>
+  </p>
+  <p>
+    <label>Customer Name</label>
+    <input class="input" type="text" id="customer_name" name="customer_name" value="{{ sale.customer_name }}" required>
+  </p>
+  <p>
+    <label>Product</label>
+    <input class="input" type="text" id="product" name="product" value="{{ sale.product }}" required>
+  </p>
+  <p>
+    <label>Quantity</label>
+    <input class="input" type="number" step="0.01" id="quantity" name="quantity" value="{{ sale.quantity }}" required>
+  </p>
+  <p>
+    <label>Unit Price</label>
+    <input class="input" type="number" step="0.01" id="unit_price" name="unit_price" value="{{ sale.unit_price }}" required>
+  </p>
+  <p>
+    <label>Total Amount</label>
+    <input class="input" type="number" step="0.01" id="total_amt" name="total_amt" value="{{ sale.total_amt }}" required>
+  </p>
+  <p>
+    <label>Sale Date</label>
+    <input class="input" type="date" id="sale_date" name="sale_date" value="{{ sale.sale_date }}" required>
+  </p>
+  <p>
+    <label>Payment Status</label>
+    <select class="input" id="payment_status" name="payment_status" required>
+      <option value="Paid" {% if sale.payment_status == 'Paid' %}selected{% endif %}>Paid</option>
+      <option value="Pending" {% if sale.payment_status == 'Pending' %}selected{% endif %}>Pending</option>
+      <option value="Overdue" {% if sale.payment_status == 'Overdue' %}selected{% endif %}>Overdue</option>
+    </select>
+  </p>
+  <p>
+    <button type="submit">Update</button>
+    <a href="{{ url_for('sales_list') }}" class="button">Cancel</a>
+  </p>
+</form>
+
+</body>
+</html>

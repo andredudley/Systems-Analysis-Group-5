@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<title>Crops Create Form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Crops Create Form</h2></center>
+</div>
+
+<form class="form" method="POST" action="{{ url_for('crops_create') }}">
+  <p>
+    <label>Crop Name</label>
+    <input class="input" type="text" id="crop_name" name="crop_name" required>
+  </p>
+  <p>
+    <label>Variety</label>
+    <input class="input" type="text" id="variety" name="variety">
+  </p>
+  <p>
+    <label>Plant Date</label>
+    <input class="input" type="date" id="plant_date" name="plant_date" required>
+  </p>
+  <p>
+    <label>Expected Harvest</label>
+    <input class="input" type="date" id="expected_harvest" name="expected_harvest">
+  </p>
+  <p>
+    <label>Field Location</label>
+    <input class="input" type="text" id="field_location" name="field_location" required>
+  </p>
+  <p>
+    <label>Area Planted (acres)</label>
+    <input class="input" type="number" step="0.01" id="area_planted" name="area_planted" required>
+  </p>
+  <p>
+    <label>Status</label>
+    <select class="input" id="status" name="status" required>
+      <option value="Planted">Planted</option>
+      <option value="Growing">Growing</option>
+      <option value="Harvested">Harvested</option>
+      <option value="Failed">Failed</option>
+    </select>
+  </p>
+  <p>
+    <label>Notes</label>
+    <textarea class="input" id="notes" name="notes" rows="4"></textarea>
+  </p>
+  <p>
+    <label>Created By</label>
+    <input class="input" type="number" id="created_by" name="created_by" required>
+  </p>
+  <p>
+    <button type="submit">Submit</button>
+    <a href="{{ url_for('crops_list') }}" class="button">Cancel</a>
+  </p>
+</form>
+
+</body>
+</html>

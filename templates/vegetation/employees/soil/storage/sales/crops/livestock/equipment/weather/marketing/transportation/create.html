@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<title>Transportation Create Form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Transportation Create Form</h2></center>
+</div>
+
+<form class="form" method="POST" action="{{ url_for('transportation_create') }}">
+  <p>
+    <label>Vehicle ID</label>
+    <input class="input" type="text" id="vehicle_id" name="vehicle_id" required>
+  </p>
+  <p>
+    <label>Driver Name</label>
+    <input class="input" type="text" id="driver_name" name="driver_name" required>
+  </p>
+  <p>
+    <label>Route</label>
+    <input class="input" type="text" id="route" name="route" required>
+  </p>
+  <p>
+    <label>Depart Date</label>
+    <input class="input" type="datetime-local" id="depart_date" name="depart_date" required>
+  </p>
+  <p>
+    <label>Arrive Date</label>
+    <input class="input" type="datetime-local" id="arrive_date" name="arrive_date">
+  </p>
+  <p>
+    <label>Cargo Date</label>
+    <input class="input" type="date" id="cargo_date" name="cargo_date">
+  </p>
+  <p>
+    <label>Status</label>
+    <select class="input" id="status" name="status" required>
+      <option value="Scheduled">Scheduled</option>
+      <option value="In Transit">In Transit</option>
+      <option value="Completed">Completed</option>
+      <option value="Delayed">Delayed</option>
+      <option value="Cancelled">Cancelled</option>
+    </select>
+  </p>
+  <p>
+    <button type="submit">Submit</button>
+    <a href="{{ url_for('transportation_list') }}" class="button">Cancel</a>
+  </p>
+</form>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<title>Weather Create Form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Weather Create Form</h2></center>
+</div>
+
+<form class="form" method="POST" action="{{ url_for('weather_create') }}">
+  <p>
+    <label>Record Date</label>
+    <input class="input" type="date" id="record_date" name="record_date" required>
+  </p>
+  <p>
+    <label>Temperature Low (°C)</label>
+    <input class="input" type="number" step="0.1" id="temp_low" name="temp_low">
+  </p>
+  <p>
+    <label>Rainfall (mm)</label>
+    <input class="input" type="number" step="0.1" id="rainfall" name="rainfall">
+  </p>
+  <p>
+    <label>Humidity (%)</label>
+    <input class="input" type="number" step="0.1" id="humidity" name="humidity">
+  </p>
+  <p>
+    <label>Wind Speed (km/h)</label>
+    <input class="input" type="number" step="0.1" id="wind_speed" name="wind_speed">
+  </p>
+  <p>
+    <button type="submit">Submit</button>
+    <a href="{{ url_for('weather_list') }}" class="button">Cancel</a>
+  </p>
+</form>
+
+</body>
+</html>

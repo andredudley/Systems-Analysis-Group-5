@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<title>Storage List</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> 
+    <h2>Storage Inventory List</h2>
+    <div class="action-buttons">
+      <a href="{{ url_for('storage_create') }}" class="button">Add New Storage Item</a>
+      <a href="{{ url_for('storage_search') }}" class="button">Search Storage</a>
+    </div>
+  </center>
+</div>
+
+<div class="table-container">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Product Name</th>
+        <th>Quantity</th>
+        <th>Unit</th>
+        <th>Storage Location</th>
+        <th>Entry Date</th>
+        <th>Condition</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in storage %}
+      <tr>
+        <td>{{ item.Storage_id }}</td>
+        <td>{{ item.product_name }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.unit }}</td>
+        <td>{{ item.storage_location }}</td>
+        <td>{{ item.entry_date }}</td>
+        <td>{{ item.condition }}</td>
+        <td>
+          <a href="{{ url_for('storage_update', id=item.Storage_id) }}" class="button">Edit</a>
+          <a href="{{ url_for('storage_delete', id=item.Storage_id) }}" class="button danger">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<title>Livestock Create Form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Livestock Create Form</h2></center>
+</div>
+
+<form class="form" method="POST" action="{{ url_for('livestock_create') }}">
+  <p>
+    <label>Species</label>
+    <input class="input" type="text" id="species" name="species" required>
+  </p>
+  <p>
+    <label>Breed</label>
+    <input class="input" type="text" id="breed" name="breed">
+  </p>
+  <p>
+    <label>Tag Number</label>
+    <input class="input" type="text" id="tag_number" name="tag_number">
+  </p>
+  <p>
+    <label>Birth Date</label>
+    <input class="input" type="date" id="birth_date" name="birth_date">
+  </p>
+  <p>
+    <label>Weight (kg)</label>
+    <input class="input" type="number" step="0.1" id="weight" name="weight">
+  </p>
+  <p>
+    <label>Health Status</label>
+    <select class="input" id="health_status" name="health_status">
+      <option value="Excellent">Excellent</option>
+      <option value="Good">Good</option>
+      <option value="Fair">Fair</option>
+      <option value="Poor">Poor</option>
+      <option value="Critical">Critical</option>
+    </select>
+  </p>
+  <p>
+    <label>Location</label>
+    <input class="input" type="text" id="location" name="location">
+  </p>
+  <p>
+    <button type="submit">Submit</button>
+    <a href="{{ url_for('livestock_list') }}" class="button">Cancel</a>
+  </p>
+</form>
+
+</body>
+</html>

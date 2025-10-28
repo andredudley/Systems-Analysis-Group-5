@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<title>Crops Delete Confirmation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Crops Delete Confirmation</h2></center>
+</div>
+
+<div class="confirmation-container">
+  <p>Are you sure you want to delete this crop record?</p>
+  <div class="details">
+    <p><strong>ID:</strong> {{ crop.crop_id }}</p>
+    <p><strong>Crop Name:</strong> {{ crop.crop_name }}</p>
+    <p><strong>Variety:</strong> {{ crop.variety }}</p>
+    <p><strong>Field Location:</strong> {{ crop.field_location }}</p>
+    <p><strong>Area Planted:</strong> {{ crop.area_planted }} acres</p>
+  </div>
+  
+  <form class="form" method="POST" action="{{ url_for('crops_delete', id=crop.crop_id) }}">
+    <p>
+      <button type="submit" class="danger">Yes, Delete</button>
+      <a href="{{ url_for('crops_list') }}" class="button">Cancel</a>
+    </p>
+  </form>
+</div>
+
+</body>
+</html>

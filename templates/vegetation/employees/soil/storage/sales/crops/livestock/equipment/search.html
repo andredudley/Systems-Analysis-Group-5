@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<title>Equipment Search</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Equipment Search</h2></center>
+</div>
+
+<form class="form" method="GET" action="{{ url_for('equipment_search') }}">
+  <p>
+    <label>Search Query</label>
+    <input class="input" type="text" id="q" name="q" value="{{ query }}" placeholder="Search by equipment name or type">
+  </p>
+  <p>
+    <button type="submit">Search</button>
+    <a href="{{ url_for('equipment_list') }}" class="button">Back to List</a>
+  </p>
+</form>
+
+{% if results %}
+<div class="table-container">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Equipment Name</th>
+        <th>Type</th>
+        <th>Purchase Date</th>
+        <th>Last Maintenance</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for equip in results %}
+      <tr>
+        <td>{{ equip.equip_id }}</td>
+        <td>{{ equip.equip_name }}</td>
+        <td>{{ equip.type }}</td>
+        <td>{{ equip.purchase_date }}</td>
+        <td>{{ equip.last_maintenance }}</td>
+        <td>{{ equip.status }}</td>
+        <td>
+          <a href="{{ url_for('equipment_update', id=equip.equip_id) }}" class="button">Edit</a>
+          <a href="{{ url_for('equipment_delete', id=equip.equip_id) }}" class="button danger">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% elif query %}
+<div class="message">
+  <p>No results found for "{{ query }}"</p>
+</div>
+{% endif %}
+
+</body>
+</html>

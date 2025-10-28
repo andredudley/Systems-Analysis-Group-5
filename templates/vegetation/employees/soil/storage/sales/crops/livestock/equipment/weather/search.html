@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<title>Weather Search</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Weather Search</h2></center>
+</div>
+
+<form class="form" method="GET" action="{{ url_for('weather_search') }}">
+  <p>
+    <label>Search by Date</label>
+    <input class="input" type="date" id="q" name="q" value="{{ query }}">
+  </p>
+  <p>
+    <button type="submit">Search</button>
+    <a href="{{ url_for('weather_list') }}" class="button">Back to List</a>
+  </p>
+</form>
+
+{% if results %}
+<div class="table-container">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Record Date</th>
+        <th>Temp Low</th>
+        <th>Rainfall</th>
+        <th>Humidity</th>
+        <th>Wind Speed</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for weather in results %}
+      <tr>
+        <td>{{ weather.weather_id }}</td>
+        <td>{{ weather.record_date }}</td>
+        <td>{{ weather.temp_low }}°C</td>
+        <td>{{ weather.rainfall }} mm</td>
+        <td>{{ weather.humidity }}%</td>
+        <td>{{ weather.wind_speed }} km/h</td>
+        <td>
+          <a href="{{ url_for('weather_update', id=weather.weather_id) }}" class="button">Edit</a>
+          <a href="{{ url_for('weather_delete', id=weather.weather_id) }}" class="button danger">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% elif query %}
+<div class="message">
+  <p>No results found for "{{ query }}"</p>
+</div>
+{% endif %}
+
+</body>
+</html>

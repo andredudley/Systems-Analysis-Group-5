@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<title>Equipment Create Form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Equipment Create Form</h2></center>
+</div>
+
+<form class="form" method="POST" action="{{ url_for('equipment_create') }}">
+  <p>
+    <label>Equipment Name</label>
+    <input class="input" type="text" id="equip_name" name="equip_name" required>
+  </p>
+  <p>
+    <label>Type</label>
+    <input class="input" type="text" id="type" name="type" required>
+  </p>
+  <p>
+    <label>Purchase Date</label>
+    <input class="input" type="date" id="purchase_date" name="purchase_date" required>
+  </p>
+  <p>
+    <label>Last Maintenance</label>
+    <input class="input" type="date" id="last_maintenance" name="last_maintenance">
+  </p>
+  <p>
+    <label>Status</label>
+    <select class="input" id="status" name="status" required>
+      <option value="Operational">Operational</option>
+      <option value="Maintenance">Maintenance</option>
+      <option value="Retired">Retired</option>
+      <option value="Repair">Repair</option>
+    </select>
+  </p>
+  <p>
+    <label>Location</label>
+    <input class="input" type="text" id="location" name="location">
+  </p>
+  <p>
+    <button type="submit">Submit</button>
+    <a href="{{ url_for('equipment_list') }}" class="button">Cancel</a>
+  </p>
+</form>
+
+</body>
+</html>

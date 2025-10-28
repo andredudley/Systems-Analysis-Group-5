@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<title>Marketing Campaigns Create Form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Marketing Campaigns Create Form</h2></center>
+</div>
+
+<form class="form" method="POST" action="{{ url_for('marketing_create') }}">
+  <p>
+    <label>Campaign Name</label>
+    <input class="input" type="text" id="campaign_name" name="campaign_name" required>
+  </p>
+  <p>
+    <label>Start Date</label>
+    <input class="input" type="date" id="start_date" name="start_date" required>
+  </p>
+  <p>
+    <label>End Date</label>
+    <input class="input" type="date" id="end_date" name="end_date">
+  </p>
+  <p>
+    <label>Budget ($)</label>
+    <input class="input" type="number" step="0.01" id="budget" name="budget">
+  </p>
+  <p>
+    <label>Target Audience</label>
+    <input class="input" type="text" id="target_audience" name="target_audience">
+  </p>
+  <p>
+    <label>Status</label>
+    <select class="input" id="status" name="status" required>
+      <option value="Planning">Planning</option>
+      <option value="Active">Active</option>
+      <option value="Completed">Completed</option>
+      <option value="Cancelled">Cancelled</option>
+    </select>
+  </p>
+  <p>
+    <button type="submit">Submit</button>
+    <a href="{{ url_for('marketing_list') }}" class="button">Cancel</a>
+  </p>
+</form>
+
+</body>
+</html>

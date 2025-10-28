@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<title>Storage Delete Confirmation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Storage Delete Confirmation</h2></center>
+</div>
+
+<div class="confirmation-container">
+  <p>Are you sure you want to delete this storage item?</p>
+  <div class="details">
+    <p><strong>ID:</strong> {{ storage.Storage_id }}</p>
+    <p><strong>Product Name:</strong> {{ storage.product_name }}</p>
+    <p><strong>Quantity:</strong> {{ storage.quantity }} {{ storage.unit }}</p>
+    <p><strong>Storage Location:</strong> {{ storage.storage_location }}</p>
+  </div>
+  
+  <form class="form" method="POST" action="{{ url_for('storage_delete', id=storage.Storage_id) }}">
+    <p>
+      <button type="submit" class="danger">Yes, Delete</button>
+      <a href="{{ url_for('storage_list') }}" class="button">Cancel</a>
+    </p>
+  </form>
+</div>
+
+</body>
+</html>

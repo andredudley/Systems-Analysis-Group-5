@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<title>Yield Delete Confirmation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Yield Delete Confirmation</h2></center>
+</div>
+
+<div class="confirmation-container">
+  <p>Are you sure you want to delete this yield estimate?</p>
+  <div class="details">
+    <p><strong>ID:</strong> {{ yield_data.estimate_id }}</p>
+    <p><strong>Crop ID:</strong> {{ yield_data.crop_id }}</p>
+    <p><strong>Estimated Yield:</strong> {{ yield_data.estimated_yield }}</p>
+    <p><strong>Actual Yield:</strong> {{ yield_data.actual_yield if yield_data.actual_yield else 'Not recorded' }}</p>
+    <p><strong>Variance:</strong> {{ yield_data.variance if yield_data.variance else 'Not calculated' }}</p>
+    <p><strong>Estimated Date:</strong> {{ yield_data.estimated_date }}</p>
+  </div>
+  
+  <form class="form" method="POST" action="{{ url_for('yield_delete', id=yield_data.estimate_id) }}">
+    <p>
+      <button type="submit" class="danger">Yes, Delete</button>
+      <a href="{{ url_for('yield_list') }}" class="button">Cancel</a>
+    </p>
+  </form>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<title>Yield Create Form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Yield Create Form</h2></center>
+</div>
+
+<form class="form" method="POST" action="{{ url_for('yield_create') }}">
+  <p>
+    <label>Crop ID</label>
+    <input class="input" type="number" id="crop_id" name="crop_id" required>
+  </p>
+  <p>
+    <label>Estimated Yield</label>
+    <input class="input" type="number" step="0.01" id="estimated_yield" name="estimated_yield" required>
+  </p>
+  <p>
+    <label>Estimated Date</label>
+    <input class="input" type="date" id="estimated_date" name="estimated_date" required>
+  </p>
+  <p>
+    <label>Actual Yield</label>
+    <input class="input" type="number" step="0.01" id="actual_yield" name="actual_yield">
+  </p>
+  <p>
+    <label>Variance</label>
+    <input class="input" type="number" step="0.01" id="variance" name="variance">
+  </p>
+  <p>
+    <button type="submit">Submit</button>
+    <a href="{{ url_for('yield_list') }}" class="button">Cancel</a>
+  </p>
+</form>
+
+</body>
+</html>

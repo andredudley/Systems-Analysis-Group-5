@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<title>Equipment Update Form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Equipment Update Form</h2></center>
+</div>
+
+<form class="form" method="POST" action="{{ url_for('equipment_update', id=equipment.equip_id) }}">
+  <p>
+    <label>Equipment ID</label>
+    <input class="input" type="text" id="equip_id" name="equip_id" value="{{ equipment.equip_id }}" readonly>
+  </p>
+  <p>
+    <label>Equipment Name</label>
+    <input class="input" type="text" id="equip_name" name="equip_name" value="{{ equipment.equip_name }}" required>
+  </p>
+  <p>
+    <label>Type</label>
+    <input class="input" type="text" id="type" name="type" value="{{ equipment.type }}" required>
+  </p>
+  <p>
+    <label>Purchase Date</label>
+    <input class="input" type="date" id="purchase_date" name="purchase_date" value="{{ equipment.purchase_date }}" required>
+  </p>
+  <p>
+    <label>Last Maintenance</label>
+    <input class="input" type="date" id="last_maintenance" name="last_maintenance" value="{{ equipment.last_maintenance }}">
+  </p>
+  <p>
+    <label>Status</label>
+    <select class="input" id="status" name="status" required>
+      <option value="Operational" {% if equipment.status == 'Operational' %}selected{% endif %}>Operational</option>
+      <option value="Maintenance" {% if equipment.status == 'Maintenance' %}selected{% endif %}>Maintenance</option>
+      <option value="Retired" {% if equipment.status == 'Retired' %}selected{% endif %}>Retired</option>
+      <option value="Repair" {% if equipment.status == 'Repair' %}selected{% endif %}>Repair</option>
+    </select>
+  </p>
+  <p>
+    <label>Location</label>
+    <input class="input" type="text" id="location" name="location" value="{{ equipment.location }}">
+  </p>
+  <p>
+    <button type="submit">Update</button>
+    <a href="{{ url_for('equipment_list') }}" class="button">Cancel</a>
+  </p>
+</form>
+
+</body>
+</html>

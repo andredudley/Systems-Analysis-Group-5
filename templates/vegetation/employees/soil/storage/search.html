@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<title>Storage Search</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Storage Search</h2></center>
+</div>
+
+<form class="form" method="GET" action="{{ url_for('storage_search') }}">
+  <p>
+    <label>Search Query</label>
+    <input class="input" type="text" id="q" name="q" value="{{ query }}" placeholder="Search by product name or storage location">
+  </p>
+  <p>
+    <button type="submit">Search</button>
+    <a href="{{ url_for('storage_list') }}" class="button">Back to List</a>
+  </p>
+</form>
+
+{% if results %}
+<div class="table-container">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Product Name</th>
+        <th>Quantity</th>
+        <th>Unit</th>
+        <th>Storage Location</th>
+        <th>Condition</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in results %}
+      <tr>
+        <td>{{ item.Storage_id }}</td>
+        <td>{{ item.product_name }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.unit }}</td>
+        <td>{{ item.storage_location }}</td>
+        <td>{{ item.condition }}</td>
+        <td>
+          <a href="{{ url_for('storage_update', id=item.Storage_id) }}" class="button">Edit</a>
+          <a href="{{ url_for('storage_delete', id=item.Storage_id) }}" class="button danger">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% elif query %}
+<div class="message">
+  <p>No results found for "{{ query }}"</p>
+</div>
+{% endif %}
+
+</body>
+</html>

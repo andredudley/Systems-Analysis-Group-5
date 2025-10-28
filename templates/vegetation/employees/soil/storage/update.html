@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<title>Storage Update Form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Storage Update Form</h2></center>
+</div>
+
+<form class="form" method="POST" action="{{ url_for('storage_update', id=storage.Storage_id) }}">
+  <p>
+    <label>Storage ID</label>
+    <input class="input" type="text" id="Storage_id" name="Storage_id" value="{{ storage.Storage_id }}" readonly>
+  </p>
+  <p>
+    <label>Product Name</label>
+    <input class="input" type="text" id="product_name" name="product_name" value="{{ storage.product_name }}" required>
+  </p>
+  <p>
+    <label>Quantity</label>
+    <input class="input" type="number" step="0.01" id="quantity" name="quantity" value="{{ storage.quantity }}" required>
+  </p>
+  <p>
+    <label>Unit</label>
+    <input class="input" type="text" id="unit" name="unit" value="{{ storage.unit }}" required>
+  </p>
+  <p>
+    <label>Storage Location</label>
+    <input class="input" type="text" id="storage_location" name="storage_location" value="{{ storage.storage_location }}" required>
+  </p>
+  <p>
+    <label>Entry Date</label>
+    <input class="input" type="date" id="entry_date" name="entry_date" value="{{ storage.entry_date }}" required>
+  </p>
+  <p>
+    <label>Condition</label>
+    <select class="input" id="condition" name="condition">
+      <option value="Excellent" {% if storage.condition == 'Excellent' %}selected{% endif %}>Excellent</option>
+      <option value="Good" {% if storage.condition == 'Good' %}selected{% endif %}>Good</option>
+      <option value="Fair" {% if storage.condition == 'Fair' %}selected{% endif %}>Fair</option>
+      <option value="Poor" {% if storage.condition == 'Poor' %}selected{% endif %}>Poor</option>
+    </select>
+  </p>
+  <p>
+    <button type="submit">Update</button>
+    <a href="{{ url_for('storage_list') }}" class="button">Cancel</a>
+  </p>
+</form>
+
+</body>
+</html>

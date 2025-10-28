@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<title>Transportation List</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> 
+    <h2>Transportation List</h2>
+    <div class="action-buttons">
+      <a href="{{ url_for('transportation_create') }}" class="button">Add New Transportation</a>
+      <a href="{{ url_for('transportation_search') }}" class="button">Search Transportation</a>
+    </div>
+  </center>
+</div>
+
+<div class="table-container">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Vehicle ID</th>
+        <th>Driver Name</th>
+        <th>Route</th>
+        <th>Depart Date</th>
+        <th>Arrive Date</th>
+        <th>Cargo Date</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for transport in transportation %}
+      <tr>
+        <td>{{ transport.transport_id }}</td>
+        <td>{{ transport.vehicle_id }}</td>
+        <td>{{ transport.driver_name }}</td>
+        <td>{{ transport.route }}</td>
+        <td>{{ transport.depart_date }}</td>
+        <td>{{ transport.arrive_date }}</td>
+        <td>{{ transport.cargo_date }}</td>
+        <td>{{ transport.status }}</td>
+        <td>
+          <a href="{{ url_for('transportation_update', id=transport.transport_id) }}" class="button">Edit</a>
+          <a href="{{ url_for('transportation_delete', id=transport.transport_id) }}" class="button danger">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>

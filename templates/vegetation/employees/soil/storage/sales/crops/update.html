@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<title>Crops Update Form</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Crops Update Form</h2></center>
+</div>
+
+<form class="form" method="POST" action="{{ url_for('crops_update', id=crop.crop_id) }}">
+  <p>
+    <label>Crop ID</label>
+    <input class="input" type="text" id="crop_id" name="crop_id" value="{{ crop.crop_id }}" readonly>
+  </p>
+  <p>
+    <label>Crop Name</label>
+    <input class="input" type="text" id="crop_name" name="crop_name" value="{{ crop.crop_name }}" required>
+  </p>
+  <p>
+    <label>Variety</label>
+    <input class="input" type="text" id="variety" name="variety" value="{{ crop.variety }}">
+  </p>
+  <p>
+    <label>Plant Date</label>
+    <input class="input" type="date" id="plant_date" name="plant_date" value="{{ crop.plant_date }}" required>
+  </p>
+  <p>
+    <label>Expected Harvest</label>
+    <input class="input" type="date" id="expected_harvest" name="expected_harvest" value="{{ crop.expected_harvest }}">
+  </p>
+  <p>
+    <label>Field Location</label>
+    <input class="input" type="text" id="field_location" name="field_location" value="{{ crop.field_location }}" required>
+  </p>
+  <p>
+    <label>Area Planted (acres)</label>
+    <input class="input" type="number" step="0.01" id="area_planted" name="area_planted" value="{{ crop.area_planted }}" required>
+  </p>
+  <p>
+    <label>Status</label>
+    <select class="input" id="status" name="status" required>
+      <option value="Planted" {% if crop.status == 'Planted' %}selected{% endif %}>Planted</option>
+      <option value="Growing" {% if crop.status == 'Growing' %}selected{% endif %}>Growing</option>
+      <option value="Harvested" {% if crop.status == 'Harvested' %}selected{% endif %}>Harvested</option>
+      <option value="Failed" {% if crop.status == 'Failed' %}selected{% endif %}>Failed</option>
+    </select>
+  </p>
+  <p>
+    <label>Notes</label>
+    <textarea class="input" id="notes" name="notes" rows="4">{{ crop.notes }}</textarea>
+  </p>
+  <p>
+    <label>Created By</label>
+    <input class="input" type="number" id="created_by" name="created_by" value="{{ crop.created_by }}" required>
+  </p>
+  <p>
+    <button type="submit">Update</button>
+    <a href="{{ url_for('crops_list') }}" class="button">Cancel</a>
+  </p>
+</form>
+
+</body>
+</html>

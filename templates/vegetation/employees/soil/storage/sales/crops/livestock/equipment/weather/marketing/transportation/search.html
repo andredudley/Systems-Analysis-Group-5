@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<title>Transportation Search</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Transportation Search</h2></center>
+</div>
+
+<form class="form" method="GET" action="{{ url_for('transportation_search') }}">
+  <p>
+    <label>Search Query</label>
+    <input class="input" type="text" id="q" name="q" value="{{ query }}" placeholder="Search by driver name, vehicle ID, or route">
+  </p>
+  <p>
+    <button type="submit">Search</button>
+    <a href="{{ url_for('transportation_list') }}" class="button">Back to List</a>
+  </p>
+</form>
+
+{% if results %}
+<div class="table-container">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Vehicle ID</th>
+        <th>Driver Name</th>
+        <th>Route</th>
+        <th>Depart Date</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for transport in results %}
+      <tr>
+        <td>{{ transport.transport_id }}</td>
+        <td>{{ transport.vehicle_id }}</td>
+        <td>{{ transport.driver_name }}</td>
+        <td>{{ transport.route }}</td>
+        <td>{{ transport.depart_date }}</td>
+        <td>{{ transport.status }}</td>
+        <td>
+          <a href="{{ url_for('transportation_update', id=transport.transport_id) }}" class="button">Edit</a>
+          <a href="{{ url_for('transportation_delete', id=transport.transport_id) }}" class="button danger">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% elif query %}
+<div class="message">
+  <p>No results found for "{{ query }}"</p>
+</div>
+{% endif %}
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<title>Livestock Search</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Livestock Search</h2></center>
+</div>
+
+<form class="form" method="GET" action="{{ url_for('livestock_search') }}">
+  <p>
+    <label>Search Query</label>
+    <input class="input" type="text" id="q" name="q" value="{{ query }}" placeholder="Search by species, breed, or tag number">
+  </p>
+  <p>
+    <button type="submit">Search</button>
+    <a href="{{ url_for('livestock_list') }}" class="button">Back to List</a>
+  </p>
+</form>
+
+{% if results %}
+<div class="table-container">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Species</th>
+        <th>Breed</th>
+        <th>Tag Number</th>
+        <th>Birth Date</th>
+        <th>Weight</th>
+        <th>Health Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for animal in results %}
+      <tr>
+        <td>{{ animal.animal_id }}</td>
+        <td>{{ animal.species }}</td>
+        <td>{{ animal.breed }}</td>
+        <td>{{ animal.tag_number }}</td>
+        <td>{{ animal.birth_date }}</td>
+        <td>{{ animal.weight }} kg</td>
+        <td>{{ animal.health_status }}</td>
+        <td>
+          <a href="{{ url_for('livestock_update', id=animal.animal_id) }}" class="button">Edit</a>
+          <a href="{{ url_for('livestock_delete', id=animal.animal_id) }}" class="button danger">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% elif query %}
+<div class="message">
+  <p>No results found for "{{ query }}"</p>
+</div>
+{% endif %}
+
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<title>Weather List</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> 
+    <h2>Weather Records List</h2>
+    <div class="action-buttons">
+      <a href="{{ url_for('weather_create') }}" class="button">Add New Weather Record</a>
+      <a href="{{ url_for('weather_search') }}" class="button">Search Weather</a>
+    </div>
+  </center>
+</div>
+
+<div class="table-container">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Record Date</th>
+        <th>Temp Low (°C)</th>
+        <th>Rainfall (mm)</th>
+        <th>Humidity (%)</th>
+        <th>Wind Speed (km/h)</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for weather in weather_data %}
+      <tr>
+        <td>{{ weather.weather_id }}</td>
+        <td>{{ weather.record_date }}</td>
+        <td>{{ weather.temp_low }}</td>
+        <td>{{ weather.rainfall }}</td>
+        <td>{{ weather.humidity }}</td>
+        <td>{{ weather.wind_speed }}</td>
+        <td>
+          <a href="{{ url_for('weather_update', id=weather.weather_id) }}" class="button">Edit</a>
+          <a href="{{ url_for('weather_delete', id=weather.weather_id) }}" class="button danger">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>

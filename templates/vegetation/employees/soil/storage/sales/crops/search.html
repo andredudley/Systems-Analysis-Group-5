@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<title>Crops Search</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Crops Search</h2></center>
+</div>
+
+<form class="form" method="GET" action="{{ url_for('crops_search') }}">
+  <p>
+    <label>Search Query</label>
+    <input class="input" type="text" id="q" name="q" value="{{ query }}" placeholder="Search by crop name or field location">
+  </p>
+  <p>
+    <button type="submit">Search</button>
+    <a href="{{ url_for('crops_list') }}" class="button">Back to List</a>
+  </p>
+</form>
+
+{% if results %}
+<div class="table-container">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Crop Name</th>
+        <th>Variety</th>
+        <th>Field Location</th>
+        <th>Area Planted</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for crop in results %}
+      <tr>
+        <td>{{ crop.crop_id }}</td>
+        <td>{{ crop.crop_name }}</td>
+        <td>{{ crop.variety }}</td>
+        <td>{{ crop.field_location }}</td>
+        <td>{{ crop.area_planted }} acres</td>
+        <td>{{ crop.status }}</td>
+        <td>
+          <a href="{{ url_for('crops_update', id=crop.crop_id) }}" class="button">Edit</a>
+          <a href="{{ url_for('crops_delete', id=crop.crop_id) }}" class="button danger">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% elif query %}
+<div class="message">
+  <p>No results found for "{{ query }}"</p>
+</div>
+{% endif %}
+
+</body>
+</html>

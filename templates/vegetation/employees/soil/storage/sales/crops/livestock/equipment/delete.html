@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<title>Equipment Delete Confirmation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/css/style.css">
+
+<body>
+
+<div class="form-container">
+  <center> <h2>Equipment Delete Confirmation</h2></center>
+</div>
+
+<div class="confirmation-container">
+  <p>Are you sure you want to delete this equipment record?</p>
+  <div class="details">
+    <p><strong>ID:</strong> {{ equipment.equip_id }}</p>
+    <p><strong>Equipment Name:</strong> {{ equipment.equip_name }}</p>
+    <p><strong>Type:</strong> {{ equipment.type }}</p>
+    <p><strong>Purchase Date:</strong> {{ equipment.purchase_date }}</p>
+    <p><strong>Status:</strong> {{ equipment.status }}</p>
+  </div>
+  
+  <form class="form" method="POST" action="{{ url_for('equipment_delete', id=equipment.equip_id) }}">
+    <p>
+      <button type="submit" class="danger">Yes, Delete</button>
+      <a href="{{ url_for('equipment_list') }}" class="button">Cancel</a>
+    </p>
+  </form>
+</div>
+
+</body>
+</html>
