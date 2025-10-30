@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Session - Sky Acres Farm Management</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-tractor"></i> Sky Acres Session
+            </div>
+            <div class="nav-menu">
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="farm-data.html" class="nav-link">Farm Data</a>
+                <a href="inventory.html" class="nav-link">Inventory</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+                <a href="logout.html" class="nav-link">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Session Overview Section -->
+    <div class="container">
+        <div class="dashboard-header">
+            <h2>Welcome, <span id="username-display">Farmer</span> 👩‍🌾</h2>
+            <p>Your current session is active. Manage your activities or log out when finished.</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Session Details -->
+            <div class="dashboard-card">
+                <h3><i class="fas fa-user-clock"></i> Session Details</h3>
+                <ul class="session-list">
+                    <li><strong>Username:</strong> <span id="session-username">farmer_user</span></li>
+                    <li><strong>Login Time:</strong> <span id="session-login-time">10:25 AM</span></li>
+                    <li><strong>Session Duration:</strong> <span id="session-duration">00:00:00</span></li>
+                    <li><strong>Status:</strong> <span class="session-status active">Active</span></li>
+                </ul>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="dashboard-card">
+                <h3><i class="fas fa-tools"></i> Quick Actions</h3>
+                <div class="form-actions">
+                    <a href="dashboard.html" class="btn btn-brown"><i class="fas fa-home"></i> Go to Dashboard</a>
+                    <a href="profile.html" class="btn btn-brown"><i class="fas fa-user-cog"></i> Edit Profile</a>
+                    <a href="logout.html" class="btn btn-primary"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+
+            <!-- System Updates -->
+            <div class="dashboard-card">
+                <h3><i class="fas fa-bell"></i> System Updates</h3>
+                <p>Keep track of new farm tools, crop analytics, and weather alerts tailored to your region.</p>
+                <ul class="update-list">
+                    <li>🌱 New soil health monitoring feature available.</li>
+                    <li>☀️ Weather forecast updated for your area.</li>
+                    <li>💧 Water usage report ready for review.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            &copy; 2025 Sky Acres Farm Management System. All Rights Reserved.
+        </div>
+    </footer>
+
+    <!-- FontAwesome -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+    <!-- JavaScript: Session Timer Simulation -->
+    <script>
+        // Simulate session tracking
+        const loginTime = new Date();
+        document.getElementById('session-login-time').textContent = loginTime.toLocaleTimeString();
+
+        // Fake username (replace with session variable if using Flask)
+        const username = sessionStorage.getItem('username') || 'Farmer_Jane';
+        document.getElementById('username-display').textContent = username;
+        document.getElementById('session-username').textContent = username;
+
+        // Timer for session duration
+        let seconds = 0;
+        const timer = setInterval(() => {
+            seconds++;
+            const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
+            const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+            const secs = String(seconds % 60).padStart(2, '0');
+            document.getElementById('session-duration').textContent = `${hrs}:${mins}:${secs}`;
+        }, 1000);
+    </script>
+
+</body>
+</html>
