@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sky Acres - Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/style.css">
+   </head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-tractor"></i>
+                <span>Sky Acres</span>
+            </div>
+            <div class="nav-menu">
+                <a href="{{ url_for('dashboard') }}" class="nav-link active">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a href="{{ url_for('vegetation_list') }}" class="nav-link">
+                    <i class="fas fa-seedling"></i> Crops
+                </a>
+                <a href="{{ url_for('livestock_list') }}" class="nav-link">
+                    <i class="fas fa-cow"></i> Livestock
+                </a>
+                <a href="{{ url_for('employees_list') }}" class="nav-link">
+                    <i class="fas fa-users"></i> Employees
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-chart-line"></i> Reports
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="dashboard">
+            <!-- Welcome Section -->
+            <div class="dashboard-header">
+                <h1>Welcome to Sky Acres</h1>
+                <p>Manage your farm operations efficiently</p>
+                <div class="current-date">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="currentDate"></span>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fas fa-seedling"></i>
+                    <h3>Active Crops</h3>
+                    <p class="stat-number">24</p>
+                    <p class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> 12% from last month
+                    </p>
+                    <a href="{{ url_for('crops_list') }}" class="stat-link">View All Crops</a>
+                </div>
+
+                <div class="stat-card">
+                    <i class="fas fa-cow"></i>
+                    <h3>Total Livestock</h3>
+                    <p class="stat-number">156</p>
+                    <p class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> 8% from last month
+                    </p>
+                    <a href="{{ url_for('livestock_list') }}" class="stat-link">Manage Livestock</a>
+                </div>
+
+                <div class="stat-card">
+                    <i class="fas fa-tractor"></i>
+                    <h3>Equipment</h3>
+                    <p class="stat-number">18</p>
+                    <p class="stat-change negative">
+                        <i class="fas fa-tools"></i> 2 need maintenance
+                    </p>
+                    <a href="{{ url_for('equipment_list') }}" class="stat-link">View Equipment</a>
+                </div>
+
+                <div class="stat-card">
+                    <i class="fas fa-dollar-sign"></i>
+                    <h3>Monthly Revenue</h3>
+                    <p class="stat-number">$24,580</p>
+                    <p class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> 15% from last month
+                    </p>
+                    <a href="{{ url_for('sales_list') }}" class="stat-link">View Sales</a>
+                </div>
+
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <h3>Employees</h3>
+                    <p class="stat-number">12</p>
+                    <p class="stat-change neutral">
+                        <i class="fas fa-minus"></i> No change
+                    </p>
+                    <a href="{{ url_for('employees_list') }}" class="stat-link">Manage Team</a>
+                </div>
+
+                <div class="stat-card">
+                    <i class="fas fa-warehouse"></i>
+                    <h3>Storage Items</h3>
+                    <p class="stat-number">47</p>
+                    <p class="stat-change negative">
+                        <i class="fas fa-exclamation-triangle"></i> 5 low stock
+                    </p>
+                    <a href="{{ url_for('storage_list') }}" class="stat-link">Check Inventory</a>
+                </div>
+            </div>
+
+            <!-- Quick Actions & Recent Activity -->
+            <div class="dashboard-grid">
+                <!-- Quick Actions -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+                    </div>
+                    <div class="action-grid">
+                        <a href="{{ url_for('vegetation_create') }}" class="action-card">
+                            <i class="fas fa-plus"></i>
+                            <span>Add Crop Data</span>
+                        </a>
+                        <a href="{{ url_for('livestock_create') }}" class="action-card">
+                            <i class="fas fa-plus"></i>
+                            <span>Add Animal</span>
+                        </a>
+                        <a href="{{ url_for('sales_create') }}" class="action-card">
+                            <i class="fas fa-cash-register"></i>
+                            <span>Record Sale</span>
+                        </a>
+                        <a href="{{ url_for('equipment_create') }}" class="action-card">
+                            <i class="fas fa-tools"></i>
+                            <span>Add Equipment</span>
+                        </a>
+                        <a href="{{ url_for('storage_create') }}" class="action-card">
+                            <i class="fas fa-box-open"></i>
+                            <span>Add Inventory</span>
+                        </a>
+                        <a href="{{ url_for('employees_create') }}" class="action-card">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Add Employee</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-history"></i> Recent Activity</h2>
+                    </div>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <i class="fas fa-seedling activity-icon success"></i>
+                            <div class="activity-content">
+                                <p><strong>New crop planted</strong> - Corn in North Field</p>
+                                <span class="activity-time">2 hours ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <i class="fas fa-cow activity-icon info"></i>
+                            <div class="activity-content">
+                                <p><strong>Animal health check</strong> - 15 cattle examined</p>
+                                <span class="activity-time">4 hours ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <i class="fas fa-tractor activity-icon warning"></i>
+                            <div class="activity-content">
+                                <p><strong>Equipment maintenance</strong> - Tractor #3 serviced</p>
+                                <span class="activity-time">Yesterday</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <i class="fas fa-shopping-cart activity-icon success"></i>
+                            <div class="activity-content">
+                                <p><strong>Sale completed</strong> - $2,450 wheat shipment</p>
+                                <span class="activity-time">Yesterday</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <i class="fas fa-cloud-sun activity-icon info"></i>
+                            <div class="activity-content">
+                                <p><strong>Weather alert</strong> - Rain expected tomorrow</p>
+                                <span class="activity-time">2 days ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weather & Alerts Section -->
+            <div class="dashboard-grid">
+                <!-- Weather Forecast -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-cloud-sun"></i> Weather Forecast</h2>
+                    </div>
+                    <div class="weather-widget">
+                        <div class="current-weather">
+                            <div class="weather-icon">
+                                <i class="fas fa-sun"></i>
+                            </div>
+                            <div class="weather-info">
+                                <h3>Sunny</h3>
+                                <p class="temperature">72°F</p>
+                                <p class="weather-details">Humidity: 45% • Wind: 8 mph</p>
+                            </div>
+                        </div>
+                        <div class="weather-forecast">
+                            <div class="forecast-day">
+                                <span>Tomorrow</span>
+                                <i class="fas fa-cloud-rain"></i>
+                                <span>68°F</span>
+                            </div>
+                            <div class="forecast-day">
+                                <span>Wed</span>
+                                <i class="fas fa-cloud"></i>
+                                <span>70°F</span>
+                            </div>
+                            <div class="forecast-day">
+                                <span>Thu</span>
+                                <i class="fas fa-sun"></i>
+                                <span>75°F</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Alerts -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-exclamation-triangle"></i> System Alerts</h2>
+                    </div>
+                    <div class="alerts-list">
+                        <div class="alert-item warning">
+                            <i class="fas fa-tools"></i>
+                            <div class="alert-content">
+                                <p><strong>Equipment Maintenance</strong></p>
+                                <p>Harvester #2 due for service</p>
+                            </div>
+                        </div>
+                        <div class="alert-item danger">
+                            <i class="fas fa-temperature-high"></i>
+                            <div class="alert-content">
+                                <p><strong>Temperature Alert</strong></p>
+                                <p>High temperatures in greenhouse</p>
+                            </div>
+                        </div>
+                        <div class="alert-item info">
+                            <i class="fas fa-box"></i>
+                            <div class="alert-content">
+                                <p><strong>Low Inventory</strong></p>
+                                <p>Fertilizer stock running low</p>
+                            </div>
+                        </div>
+                        <div class="alert-item success">
+                            <i class="fas fa-seedling"></i>
+                            <div class="alert-content">
+                                <p><strong>Crop Ready</strong></p>
+                                <p>Wheat in South Field ready for harvest</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Tasks -->
+            <div class="dashboard-card full-width">
+                <div class="card-header">
+                    <h2><i class="fas fa-tasks"></i> Upcoming Tasks</h2>
+                </div>
+                <div class="tasks-list">
+                    <div class="task-item">
+                        <div class="task-checkbox">
+                            <input type="checkbox" id="task1">
+                            <label for="task1"></label>
+                        </div>
+                        <div class="task-content">
+                            <p><strong>Water crops in North Field</strong></p>
+                            <span class="task-due">Due: Today</span>
+                        </div>
+                        <div class="task-priority high">High</div>
+                    </div>
+                    <div class="task-item">
+                        <div class="task-checkbox">
+                            <input type="checkbox" id="task2">
+                            <label for="task2"></label>
+                        </div>
+                        <div class="task-content">
+                            <p><strong>Schedule soil testing</strong></p>
+                            <span class="task-due">Due: Tomorrow</span>
+                        </div>
+                        <div class="task-priority medium">Medium</div>
+                    </div>
+                    <div class="task-item">
+                        <div class="task-checkbox">
+                            <input type="checkbox" id="task3">
+                            <label for="task3"></label>
+                        </div>
+                        <div class="task-content">
+                            <p><strong>Order new seeds</strong></p>
+                            <span class="task-due">Due: This week</span>
+                        </div>
+                        <div class="task-priority medium">Medium</div>
+                    </div>
+                    <div class="task-item">
+                        <div class="task-checkbox">
+                            <input type="checkbox" id="task4">
+                            <label for="task4"></label>
+                        </div>
+                        <div class="task-content">
+                            <p><strong>Prepare quarterly report</strong></p>
+                            <span class="task-due">Due: Next week</span>
+                        </div>
+                        <div class="task-priority low">Low</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Sky Acres Farm Management System. All rights reserved.</p>
+            <p>Growing the future, one harvest at a time.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript for dynamic content -->
+    <script>
+        // Update current date
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            document.getElementById('currentDate').textContent = 
+                now.toLocaleDateString('en-US', options);
+        }
+
+        // Task completion toggle
+        document.querySelectorAll('.task-checkbox input').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const taskItem = this.closest('.task-item');
+                if (this.checked) {
+                    taskItem.style.opacity = '0.6';
+                    taskItem.style.textDecoration = 'line-through';
+                } else {
+                    taskItem.style.opacity = '1';
+                    taskItem.style.textDecoration = 'none';
+                }
+            });
+        });
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCurrentDate();
+            
+            // Simulate loading animation
+            const stats = document.querySelectorAll('.stat-number');
+            stats.forEach(stat => {
+                const finalValue = parseInt(stat.textContent);
+                let currentValue = 0;
+                const increment = finalValue / 20;
+                const timer = setInterval(() => {
+                    currentValue += increment;
+                    if (currentValue >= finalValue) {
+                        stat.textContent = finalValue;
+                        clearInterval(timer);
+                    } else {
+                        stat.textContent = Math.floor(currentValue);
+                    }
+                }, 50);
+            });
+        });
+    </script>
+</body>
+</html>
