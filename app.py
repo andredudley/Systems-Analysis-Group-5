@@ -2,7 +2,6 @@ import mysql.connector
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 
 app = Flask(__name__)
-<<<<<<< HEAD
 app.secret_key = 'your-secret-key-here'
 
 # ------------------------------
@@ -50,15 +49,10 @@ def execute_query(query, params=None):
 # USER AUTHENTICATION
 # ============================================================
 
-=======
-
-# Main Routes
->>>>>>> d35f19d84725a425ff98e44c569cf8aeda429f76
 @app.route('/')
 def index():
     return render_template('user-authentication/index.html')
 
-<<<<<<< HEAD
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -1510,5 +1504,3 @@ def yield_delete(estimate_id):
 # ------------------------------
 if __name__ == '__main__':
     app.run(debug=True)
-=======
->>>>>>> d35f19d84725a425ff98e44c569cf8aeda429f76
