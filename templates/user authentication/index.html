@@ -3,8 +3,10 @@
 <head>
     <title>Sky Acres - Modern Farm Management</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/static/css/style.css">
-  </head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+</head>
 <body>
     <!-- Navigation -->
     <nav class="navbar">
@@ -14,14 +16,10 @@
                 <span>Sky Acres</span>
             </div>
             <div class="nav-menu">
-                <a href="#home" class="nav-link active">Home</a>
-                <a href="#features" class="nav-link">Features</a>
-                <a href="#about" class="nav-link">About</a>
-                <a href="#contact" class="nav-link">Contact</a>
-                <a href="{{ url_for('login') }}" class="nav-link">
+                <a href="/login" class="nav-link">
                     <i class="fas fa-sign-in-alt"></i> Login
                 </a>
-                <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">
+                <a href="/register" class="btn btn-primary btn-sm">
                     <i class="fas fa-user-plus"></i> Get Started
                 </a>
             </div>
@@ -35,11 +33,11 @@
                 <h1>Grow Smarter with Sky Acres</h1>
                 <p class="hero-subtitle">Modern Farm Management Solutions for the 21st Century Farmer</p>
                 <p class="hero-description">
-                    Streamline your farm operations, maximize yields, and make data-driven decisions 
+                    Streamline your farm operations, maximize yields, and make data-driven decisions
                     with our comprehensive farm management platform.
                 </p>
                 <div class="hero-buttons">
-                    <a href="{{ url_for('register') }}" class="btn btn-primary">
+                    <a href="/register" class="btn btn-primary">
                         <i class="fas fa-seedling"></i> Start Free Trial
                     </a>
                     <a href="#features" class="btn btn-secondary">
@@ -103,7 +101,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Scroll Indicator -->
         <div class="scroll-indicator">
             <span>Scroll to explore</span>
@@ -301,10 +299,10 @@
                 <h2>Ready to Transform Your Farm?</h2>
                 <p>Join thousands of farmers who are already growing smarter with Sky Acres</p>
                 <div class="cta-buttons">
-                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-large">
+                    <a href="/register" class="btn btn-primary btn-large">
                         <i class="fas fa-rocket"></i> Start Your Free Trial
                     </a>
-                    <a href="{{ url_for('login') }}" class="btn btn-secondary">
+                    <a href="/login" class="btn btn-secondary">
                         <i class="fas fa-sign-in-alt"></i> Existing User? Login
                     </a>
                 </div>
@@ -372,7 +370,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 Sky Acres Farm Management System. All rights reserved.</p>
+                <p>&copy; 2025 Sky Acres Farm Management System. All rights reserved.</p>
                 <div class="footer-links">
                     <a href="#">Privacy Policy</a>
                     <a href="#">Terms of Service</a>
@@ -402,10 +400,10 @@
         window.addEventListener('scroll', function() {
             const navbar = document.querySelector('.navbar');
             if (window.scrollY > 100) {
-                navbar.style.background = 'linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%)';
+                navbar.style.background = 'linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)';
                 navbar.style.boxShadow = '0 2px 20px rgba(0,0,0,0.1)';
             } else {
-                navbar.style.background = 'linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%)';
+                navbar.style.background = 'linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)';
                 navbar.style.boxShadow = 'none';
             }
         });
@@ -421,7 +419,7 @@
         // Initialize animations
         document.addEventListener('DOMContentLoaded', function() {
             animateFloatingCards();
-            
+
             // Add loading animation to stats
             const stats = document.querySelectorAll('.stat-number');
             stats.forEach(stat => {

@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html>
-<title>Crops Search</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/css/style.css">
-
+<head>
+  <title>Crops Search</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
 <body>
 
 <div class="form-container">
-  <center> <h2>Crops Search</h2></center>
+  <center><h2>Crops Search</h2></center>
 </div>
 
 <form class="form" method="GET" action="{{ url_for('crops_search') }}">
   <p>
     <label>Search Query</label>
-    <input class="input" type="text" id="q" name="q" value="{{ query }}" placeholder="Search by crop name or field location">
+    <input class="input"
+           type="text"
+           id="q"
+           name="q"
+           value="{{ query or '' }}"
+           placeholder="Search by crop name, variety, or status">
   </p>
   <p>
     <button type="submit">Search</button>
@@ -23,12 +29,15 @@
 
 {% if results %}
 <div class="table-container">
+  <h3 style="text-align:center;">Search Results</h3>
   <table class="table">
     <thead>
       <tr>
         <th>ID</th>
         <th>Crop Name</th>
         <th>Variety</th>
+        <th>Plant Date</th>
+        <th>Expected Harvest</th>
         <th>Field Location</th>
         <th>Area Planted</th>
         <th>Status</th>
@@ -40,13 +49,18 @@
       <tr>
         <td>{{ crop.crop_id }}</td>
         <td>{{ crop.crop_name }}</td>
-        <td>{{ crop.variety }}</td>
+        <td>{{ crop.variety or '-' }}</td>
+        <td>{{ crop.plant_date }}</td>
+        <td>{{ crop.expected_harvest or '-' }}</td>
         <td>{{ crop.field_location }}</td>
-        <td>{{ crop.area_planted }} acres</td>
+        <td>{{ crop.area_planted }}</td>
         <td>{{ crop.status }}</td>
         <td>
-          <a href="{{ url_for('crops_update', id=crop.crop_id) }}" class="button">Edit</a>
-          <a href="{{ url_for('crops_delete', id=crop.crop_id) }}" class="button danger">Delete</a>
+          <a href="{{ url_for('crops_update', crop_id=crop.crop_id) }}" class="button">Edit</a>
+          <form action="{{ url_for('crops_delete', crop_id=crop.crop_id) }}"
+                method="POST" style="display:inline;">
+            <button type="submit" class="button danger">Delete</button>
+          </form>
         </td>
       </tr>
       {% endfor %}

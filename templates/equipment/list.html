@@ -1,54 +1,93 @@
 <!DOCTYPE html>
 <html>
-<title>Equipment List</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/css/style.css">
-
+<head>
+  <title>Equipment List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
 <body>
 
-<div class="form-container">
-  <center> 
-    <h2>Equipment List</h2>
-    <div class="action-buttons">
-      <a href="{{ url_for('equipment_create') }}" class="button">Add New Equipment</a>
-      <a href="{{ url_for('equipment_search') }}" class="button">Search Equipment</a>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <i class="fas fa-tractor"></i>
+        <span>Equipment</span>
+      </div>
+      <div class="nav-menu">
+        <a href="{{ url_for('dashboard') }}" class="nav-link">
+          <i class="fas fa-back-to-dash"></i> Back to Dashboard
+        </a>
+      </div>
     </div>
-  </center>
-</div>
+  </nav>
 
-<div class="table-container">
-  <table class="table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Equipment Name</th>
-        <th>Type</th>
-        <th>Purchase Date</th>
-        <th>Last Maintenance</th>
-        <th>Status</th>
-        <th>Location</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for equip in equipment %}
-      <tr>
-        <td>{{ equip.equip_id }}</td>
-        <td>{{ equip.equip_name }}</td>
-        <td>{{ equip.type }}</td>
-        <td>{{ equip.purchase_date }}</td>
-        <td>{{ equip.last_maintenance }}</td>
-        <td>{{ equip.status }}</td>
-        <td>{{ equip.location }}</td>
-        <td>
-          <a href="{{ url_for('equipment_update', id=equip.equip_id) }}" class="button">Edit</a>
-          <a href="{{ url_for('equipment_delete', id=equip.equip_id) }}" class="button danger">Delete</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+  <div class="form-container">
+    <center>
+      <h2>Equipment List</h2>
+      <div class="action-buttons">
+        <a href="{{ url_for('equipment_create') }}" class="button">Add New Equipment</a>
+        <a href="{{ url_for('equipment_search') }}" class="button">Search Equipment</a>
+      </div>
+    </center>
+  </div>
+
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Equipment Name</th>
+          <th>Type</th>
+          <th>Purchase Date</th>
+          <th>Last Maintenance</th>
+          <th>Status</th>
+          <th>Location</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {% if rows %}
+          {% for equip in rows %}
+          <tr>
+            <td>{{ equip.equip_id }}</td>
+            <td>{{ equip.equip_name }}</td>
+            <td>{{ equip.type }}</td>
+            <td>{{ equip.purchase_date }}</td>
+            <td>
+              {% if equip.last_maintenance is not none %}
+                {{ equip.last_maintenance }}
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td>{{ equip.status }}</td>
+            <td>{{ equip.location or '-' }}</td>
+            <td>
+
+              <!-- EDIT -->
+              <a href="{{ url_for('equipment_update', equip_id=equip.equip_id) }}" class="button">Edit</a>
+
+              <!-- DELETE must be POST -->
+              <form action="{{ url_for('equipment_delete', equip_id=equip.equip_id) }}" 
+                    method="POST" 
+                    style="display:inline;">
+                <button type="submit" class="button danger">Delete</button>
+              </form>
+
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="8" style="text-align:center;">No equipment records found.</td>
+          </tr>
+        {% endif %}
+
+      </tbody>
+    </table>
+  </div>
 
 </body>
 </html>

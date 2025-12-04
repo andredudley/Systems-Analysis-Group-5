@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html>
-<title>Marketing Campaigns Search</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/css/style.css">
-
+<head>
+  <title>Marketing Search</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
 <body>
 
 <div class="form-container">
-  <center> <h2>Marketing Campaigns Search</h2></center>
+  <center><h2>Marketing Campaigns Search</h2></center>
 </div>
 
 <form class="form" method="GET" action="{{ url_for('marketing_search') }}">
   <p>
     <label>Search Query</label>
-    <input class="input" type="text" id="q" name="q" value="{{ query }}" placeholder="Search by campaign name or status">
+    <input class="input"
+           type="text"
+           id="q"
+           name="q"
+           value="{{ query or '' }}"
+           placeholder="Search by campaign name, audience, or status">
   </p>
   <p>
     <button type="submit">Search</button>
@@ -23,6 +29,7 @@
 
 {% if results %}
 <div class="table-container">
+  <h3 style="text-align:center;">Search Results</h3>
   <table class="table">
     <thead>
       <tr>
@@ -31,22 +38,27 @@
         <th>Start Date</th>
         <th>End Date</th>
         <th>Budget</th>
+        <th>Target Audience</th>
         <th>Status</th>
         <th>Actions</th>
       </tr>
     </thead>
     <tbody>
-      {% for campaign in results %}
+      {% for c in results %}
       <tr>
-        <td>{{ campaign.campaign_id }}</td>
-        <td>{{ campaign.campaign_name }}</td>
-        <td>{{ campaign.start_date }}</td>
-        <td>{{ campaign.end_date }}</td>
-        <td>${{ campaign.budget }}</td>
-        <td>{{ campaign.status }}</td>
+        <td>{{ c.campaign_id }}</td>
+        <td>{{ c.campaign_name }}</td>
+        <td>{{ c.start_date }}</td>
+        <td>{{ c.end_date or '-' }}</td>
+        <td>{{ c.budget }}</td>
+        <td>{{ c.target_audience or '-' }}</td>
+        <td>{{ c.status }}</td>
         <td>
-          <a href="{{ url_for('marketing_update', id=campaign.campaign_id) }}" class="button">Edit</a>
-          <a href="{{ url_for('marketing_delete', id=campaign.campaign_id) }}" class="button danger">Delete</a>
+          <a href="{{ url_for('marketing_update', campaign_id=c.campaign_id) }}" class="button">Edit</a>
+          <form action="{{ url_for('marketing_delete', campaign_id=c.campaign_id) }}"
+                method="POST" style="display:inline;">
+            <button type="submit" class="button danger">Delete</button>
+          </form>
         </td>
       </tr>
       {% endfor %}

@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html>
-<title>Livestock Search</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/css/style.css">
-
+<head>
+  <title>Livestock Search</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
 <body>
 
 <div class="form-container">
-  <center> <h2>Livestock Search</h2></center>
+  <center><h2>Livestock Search</h2></center>
 </div>
 
 <form class="form" method="GET" action="{{ url_for('livestock_search') }}">
   <p>
     <label>Search Query</label>
-    <input class="input" type="text" id="q" name="q" value="{{ query }}" placeholder="Search by species, breed, or tag number">
+    <input class="input"
+           type="text"
+           id="q"
+           name="q"
+           value="{{ query or '' }}"
+           placeholder="Search by species, breed, tag, or location">
   </p>
   <p>
     <button type="submit">Search</button>
@@ -23,6 +29,7 @@
 
 {% if results %}
 <div class="table-container">
+  <h3 style="text-align:center;">Search Results</h3>
   <table class="table">
     <thead>
       <tr>
@@ -33,6 +40,7 @@
         <th>Birth Date</th>
         <th>Weight</th>
         <th>Health Status</th>
+        <th>Location</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -41,14 +49,18 @@
       <tr>
         <td>{{ animal.animal_id }}</td>
         <td>{{ animal.species }}</td>
-        <td>{{ animal.breed }}</td>
-        <td>{{ animal.tag_number }}</td>
-        <td>{{ animal.birth_date }}</td>
-        <td>{{ animal.weight }} kg</td>
-        <td>{{ animal.health_status }}</td>
+        <td>{{ animal.breed or '-' }}</td>
+        <td>{{ animal.tag_number or '-' }}</td>
+        <td>{{ animal.birth_date or '-' }}</td>
+        <td>{{ animal.weight or '-' }}</td>
+        <td>{{ animal.health_status or '-' }}</td>
+        <td>{{ animal.location or '-' }}</td>
         <td>
-          <a href="{{ url_for('livestock_update', id=animal.animal_id) }}" class="button">Edit</a>
-          <a href="{{ url_for('livestock_delete', id=animal.animal_id) }}" class="button danger">Delete</a>
+          <a href="{{ url_for('livestock_update', animal_id=animal.animal_id) }}" class="button">Edit</a>
+          <form action="{{ url_for('livestock_delete', animal_id=animal.animal_id) }}"
+                method="POST" style="display:inline;">
+            <button type="submit" class="button danger">Delete</button>
+          </form>
         </td>
       </tr>
       {% endfor %}

@@ -13,7 +13,11 @@
 <form class="form" method="POST" action="{{ url_for('yield_create') }}">
   <p>
     <label>Crop ID</label>
-    <input class="input" type="number" id="crop_id" name="crop_id" required>
+    <select name="crop_id" class="input" required>
+  {% for c in crops %}
+      <option value="{{ c.crop_id }}">{{ c.crop_name }}</option>
+  {% endfor %}
+</select>
   </p>
   <p>
     <label>Estimated Yield</label>

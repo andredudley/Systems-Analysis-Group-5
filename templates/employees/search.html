@@ -1,20 +1,28 @@
 <!DOCTYPE html>
 <html>
-<title>Employees Search</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/css/style.css">
+<head>
+  <title>Employees Search</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
 
 <body>
 
 <div class="form-container">
-  <center> <h2>Employees Search</h2></center>
+  <center><h2>Employees Search</h2></center>
 </div>
 
 <form class="form" method="GET" action="{{ url_for('employees_search') }}">
   <p>
     <label>Search Query</label>
-    <input class="input" type="text" id="q" name="q" value="{{ query }}" placeholder="Search by name or position">
+    <input class="input" 
+           type="text" 
+           id="q" 
+           name="q" 
+           value="{{ query or '' }}" 
+           placeholder="Search by first name, last name, or position">
   </p>
+
   <p>
     <button type="submit">Search</button>
     <a href="{{ url_for('employees_list') }}" class="button">Back to List</a>
@@ -23,6 +31,8 @@
 
 {% if results %}
 <div class="table-container">
+  <h3 style="text-align:center;">Search Results</h3>
+
   <table class="table">
     <thead>
       <tr>
@@ -32,9 +42,11 @@
         <th>Position</th>
         <th>Hire Date</th>
         <th>Phone</th>
+        <th>Email</th>
         <th>Actions</th>
       </tr>
     </thead>
+
     <tbody>
       {% for emp in results %}
       <tr>
@@ -44,15 +56,23 @@
         <td>{{ emp.position }}</td>
         <td>{{ emp.hire_date }}</td>
         <td>{{ emp.phone }}</td>
+        <td>{{ emp.email }}</td>
+
         <td>
-          <a href="{{ url_for('employees_update', id=emp.emp_id) }}" class="button">Edit</a>
-          <a href="{{ url_for('employees_delete', id=emp.emp_id) }}" class="button danger">Delete</a>
+          <a href="{{ url_for('employees_update', emp_id=emp.emp_id) }}" class="button">Edit</a>
+
+          <form action="{{ url_for('employees_delete', emp_id=emp.emp_id) }}"
+                method="POST" style="display:inline;">
+            <button type="submit" class="button danger">Delete</button>
+          </form>
         </td>
       </tr>
       {% endfor %}
     </tbody>
+
   </table>
 </div>
+
 {% elif query %}
 <div class="message">
   <p>No results found for "{{ query }}"</p>

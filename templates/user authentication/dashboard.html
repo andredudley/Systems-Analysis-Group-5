@@ -14,25 +14,7 @@
                 <span>Sky Acres</span>
             </div>
             <div class="nav-menu">
-                <a href="{{ url_for('dashboard') }}" class="nav-link active">
-                    <i class="fas fa-home"></i> Dashboard
-                </a>
-                <a href="{{ url_for('vegetation_list') }}" class="nav-link">
-                    <i class="fas fa-seedling"></i> Crops
-                </a>
-                <a href="{{ url_for('livestock_list') }}" class="nav-link">
-                    <i class="fas fa-cow"></i> Livestock
-                </a>
-                <a href="{{ url_for('employees_list') }}" class="nav-link">
-                    <i class="fas fa-users"></i> Employees
-                </a>
-                <a href="#" class="nav-link">
-                    <i class="fas fa-chart-line"></i> Reports
-                </a>
-                <a href="#" class="nav-link">
-                    <i class="fas fa-cog"></i> Settings
-                </a>
-                <a href="#" class="nav-link">
+                <a href="{{ url_for('logout') }}" class="nav-link">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             </div>
@@ -57,7 +39,7 @@
                 <div class="stat-card">
                     <i class="fas fa-seedling"></i>
                     <h3>Active Crops</h3>
-                    <p class="stat-number">24</p>
+                    <p class="stat-number">{{ crops_count }}</p>
                     <p class="stat-change positive">
                         <i class="fas fa-arrow-up"></i> 12% from last month
                     </p>
@@ -67,7 +49,7 @@
                 <div class="stat-card">
                     <i class="fas fa-cow"></i>
                     <h3>Total Livestock</h3>
-                    <p class="stat-number">156</p>
+                    <p class="stat-number">{{ livestock_count }}</p>
                     <p class="stat-change positive">
                         <i class="fas fa-arrow-up"></i> 8% from last month
                     </p>
@@ -77,41 +59,73 @@
                 <div class="stat-card">
                     <i class="fas fa-tractor"></i>
                     <h3>Equipment</h3>
-                    <p class="stat-number">18</p>
+                    <p class="stat-number">{{ equipment_total }}</p>
                     <p class="stat-change negative">
-                        <i class="fas fa-tools"></i> 2 need maintenance
+                        <i class="fas fa-tools"></i> {{ equipment_maintenance }} need maintenance
                     </p>
+
                     <a href="{{ url_for('equipment_list') }}" class="stat-link">View Equipment</a>
                 </div>
 
                 <div class="stat-card">
                     <i class="fas fa-dollar-sign"></i>
                     <h3>Monthly Revenue</h3>
-                    <p class="stat-number">$24,580</p>
-                    <p class="stat-change positive">
-                        <i class="fas fa-arrow-up"></i> 15% from last month
-                    </p>
                     <a href="{{ url_for('sales_list') }}" class="stat-link">View Sales</a>
                 </div>
 
                 <div class="stat-card">
                     <i class="fas fa-users"></i>
                     <h3>Employees</h3>
-                    <p class="stat-number">12</p>
-                    <p class="stat-change neutral">
-                        <i class="fas fa-minus"></i> No change
-                    </p>
+                    <p class="stat-number">{{ employees_count }}</p>
                     <a href="{{ url_for('employees_list') }}" class="stat-link">Manage Team</a>
                 </div>
 
                 <div class="stat-card">
                     <i class="fas fa-warehouse"></i>
                     <h3>Storage Items</h3>
-                    <p class="stat-number">47</p>
+                    <p class="stat-number">{{ storage_total }}</p>
                     <p class="stat-change negative">
-                        <i class="fas fa-exclamation-triangle"></i> 5 low stock
+                         <i class="fas fa-exclamation-triangle"></i> {{ low_stock }} low stock
                     </p>
+
                     <a href="{{ url_for('storage_list') }}" class="stat-link">Check Inventory</a>
+                </div>
+                 <div class="stat-card">
+                    <i class="fas fa-seedling"></i>
+                    <h3>Transportation</h3>
+                    <p class="stat-number">{{ transportation_count }}</p>
+                    <a href="{{ url_for('transportation_list') }}" class="stat-link">View and Record Transportation</a>
+                </div>
+
+                 <div class="stat-card">
+                    <i class="fas fa-seedling"></i>
+                    <h3>Soil</h3>
+                    <p class="stat-number">{{ soil_count }}</p>
+                    <a href="{{ url_for('soil_list') }}" class="stat-link">View and Record Soil</a>
+                </div>
+                 <div class="stat-card">
+                    <i class="fas fa-seedling"></i>
+                    <h3>Marketing</h3>
+                    <p class="stat-number">{{ marketing_count }}</p>
+                    <a href="{{ url_for('marketing_list') }}" class="stat-link">View Your Marketing Campaigns</a>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-seedling"></i>
+                    <h3>Vegetation</h3>
+                    <p class="stat-number">{{ vegetation_count }}</p>
+                    <a href="{{ url_for('vegetation_list') }}" class="stat-link">Analyze and Record Vegetation</a>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-seedling"></i>
+                    <h3>Weather</h3>
+                    <p class="stat-number">{{ weather_count }}</p>
+                    <a href="{{ url_for('weather_list') }}" class="stat-link">View and Record the Weather</a>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-seedling"></i>
+                    <h3>Yield</h3>
+                    <p class="stat-number">{{ yield_count }}</p>
+                    <a href="{{ url_for('yield_list') }}" class="stat-link">View and Record Your Recent Yields</a>
                 </div>
             </div>
 
@@ -123,7 +137,7 @@
                         <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
                     </div>
                     <div class="action-grid">
-                        <a href="{{ url_for('vegetation_create') }}" class="action-card">
+                        <a href="{{ url_for('crops_create') }}" class="action-card">
                             <i class="fas fa-plus"></i>
                             <span>Add Crop Data</span>
                         </a>
@@ -329,7 +343,7 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
-            <p>&copy; 2024 Sky Acres Farm Management System. All rights reserved.</p>
+            <p>&copy; 2025 Sky Acres Farm Management System. All rights reserved.</p>
             <p>Growing the future, one harvest at a time.</p>
         </div>
     </footer>
@@ -339,13 +353,13 @@
         // Update current date
         function updateCurrentDate() {
             const now = new Date();
-            const options = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
             };
-            document.getElementById('currentDate').textContent = 
+            document.getElementById('currentDate').textContent =
                 now.toLocaleDateString('en-US', options);
         }
 
@@ -366,7 +380,7 @@
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
             updateCurrentDate();
-            
+
             // Simulate loading animation
             const stats = document.querySelectorAll('.stat-number');
             stats.forEach(stat => {

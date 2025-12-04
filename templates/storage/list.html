@@ -1,54 +1,85 @@
 <!DOCTYPE html>
 <html>
-<title>Storage List</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/css/style.css">
+<head>
+  <title>Storage List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
 
 <body>
 
-<div class="form-container">
-  <center> 
-    <h2>Storage Inventory List</h2>
-    <div class="action-buttons">
-      <a href="{{ url_for('storage_create') }}" class="button">Add New Storage Item</a>
-      <a href="{{ url_for('storage_search') }}" class="button">Search Storage</a>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <i class="fas fa-warehouse"></i>
+        <span>Storage</span>
+      </div>
+      <div class="nav-menu">
+        <a href="{{ url_for('dashboard') }}" class="nav-link">
+          <i class="fas fa-back-to-dash"></i> Back to Dashboard
+        </a>
+      </div>
     </div>
-  </center>
-</div>
+  </nav>
 
-<div class="table-container">
-  <table class="table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Product Name</th>
-        <th>Quantity</th>
-        <th>Unit</th>
-        <th>Storage Location</th>
-        <th>Entry Date</th>
-        <th>Condition</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in storage %}
-      <tr>
-        <td>{{ item.Storage_id }}</td>
-        <td>{{ item.product_name }}</td>
-        <td>{{ item.quantity }}</td>
-        <td>{{ item.unit }}</td>
-        <td>{{ item.storage_location }}</td>
-        <td>{{ item.entry_date }}</td>
-        <td>{{ item.condition }}</td>
-        <td>
-          <a href="{{ url_for('storage_update', id=item.Storage_id) }}" class="button">Edit</a>
-          <a href="{{ url_for('storage_delete', id=item.Storage_id) }}" class="button danger">Delete</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+  <div class="form-container">
+    <center>
+      <h2>Storage Items</h2>
+      <div class="action-buttons">
+        <a href="{{ url_for('storage_create') }}" class="button">Add New Storage Record</a>
+        <a href="{{ url_for('storage_search') }}" class="button">Search Storage</a>
+      </div>
+    </center>
+  </div>
+
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Product Name</th>
+          <th>Quantity</th>
+          <th>Unit</th>
+          <th>Location</th>
+          <th>Entry Date</th>
+          <th>Condition</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% if rows %}
+          {% for s in rows %}
+          <tr>
+            <td>{{ s.Storage_id }}</td>
+            <td>{{ s.product_name }}</td>
+            <td>{{ s.quantity }}</td>
+            <td>{{ s.unit }}</td>
+            <td>{{ s.storage_location }}</td>
+            <td>{{ s.entry_date }}</td>
+            <td>{{ s.condition or '-' }}</td>
+            <td>
+              <!-- EDIT -->
+              <a href="{{ url_for('storage_update', Storage_id=s.Storage_id) }}" class="button">Edit</a>
+
+              <!-- DELETE (POST) -->
+              <form action="{{ url_for('storage_delete', Storage_id=s.Storage_id) }}"
+                    method="POST"
+                    style="display:inline;">
+                <button type="submit" class="button danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="8" style="text-align:center;">No storage records found.</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
 
 </body>
 </html>

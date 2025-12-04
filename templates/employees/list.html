@@ -1,54 +1,94 @@
 <!DOCTYPE html>
 <html>
-<title>Employees List</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/css/style.css">
+<head>
+  <title>Employees List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
 
 <body>
 
-<div class="form-container">
-  <center> 
-    <h2>Employees List</h2>
-    <div class="action-buttons">
-      <a href="{{ url_for('employees_create') }}" class="button">Add New Employee</a>
-      <a href="{{ url_for('employees_search') }}" class="button">Search Employees</a>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <i class="fas fa-tractor"></i>
+        <span>Employees</span>
+      </div>
+      <div class="nav-menu">
+        <a href="{{ url_for('dashboard') }}" class="nav-link">
+          <i class="fas fa-back-to-dash"></i> Back to Dashboard
+        </a>
+      </div>
     </div>
-  </center>
-</div>
+  </nav>
 
-<div class="table-container">
-  <table class="table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>First Name</th>
-        <th>Last Name</th>
-        <th>Position</th>
-        <th>Hire Date</th>
-        <th>Phone</th>
-        <th>Email</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for emp in employees %}
-      <tr>
-        <td>{{ emp.emp_id }}</td>
-        <td>{{ emp.FName }}</td>
-        <td>{{ emp.LName }}</td>
-        <td>{{ emp.position }}</td>
-        <td>{{ emp.hire_date }}</td>
-        <td>{{ emp.phone }}</td>
-        <td>{{ emp.email }}</td>
-        <td>
-          <a href="{{ url_for('employees_update', id=emp.emp_id) }}" class="button">Edit</a>
-          <a href="{{ url_for('employees_delete', id=emp.emp_id) }}" class="button danger">Delete</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+  <div class="form-container">
+    <center>
+      <h2>Employees List</h2>
+      <div class="action-buttons">
+        <a href="{{ url_for('employees_create') }}" class="button">Add New Employee</a>
+        <a href="{{ url_for('employees_search') }}" class="button">Search Employees</a>
+      </div>
+    </center>
+  </div>
+
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Position</th>
+          <th>Hire Date</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        {% if rows %}
+          {% for emp in rows %}
+          <tr>
+            <td>{{ emp.emp_id }}</td>
+            <td>{{ emp.FName }}</td>
+            <td>{{ emp.LName }}</td>
+            <td>{{ emp.position }}</td>
+            <td>{{ emp.hire_date }}</td>
+            <td>{{ emp.phone }}</td>
+            <td>{{ emp.email }}</td>
+
+            <td>
+              <!-- EDIT -->
+              <a 
+                href="{{ url_for('employees_update', emp_id=emp.emp_id) }}" 
+                class="button">
+                Edit
+              </a>
+
+              <!-- DELETE (POST) -->
+              <form 
+                action="{{ url_for('employees_delete', emp_id=emp.emp_id) }}"
+                method="POST"
+                style="display:inline;">
+                <button type="submit" class="button danger">Delete</button>
+              </form>
+            </td>
+
+          </tr>
+          {% endfor %}
+
+        {% else %}
+          <tr>
+            <td colspan="8" style="text-align:center;">No employees found.</td>
+          </tr>
+        {% endif %}
+
+      </tbody>
+    </table>
+  </div>
 
 </body>
 </html>

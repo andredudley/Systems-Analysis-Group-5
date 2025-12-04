@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html>
-<title>Soil Search</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/css/style.css">
-
+<head>
+  <title>Soil Search</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
 <body>
 
 <div class="form-container">
-  <center> <h2>Soil Search</h2></center>
+  <center><h2>Soil Analysis Search</h2></center>
 </div>
 
 <form class="form" method="GET" action="{{ url_for('soil_search') }}">
   <p>
     <label>Search Query</label>
-    <input class="input" type="text" id="q" name="q" value="{{ query }}" placeholder="Search by field location or test name">
+    <input class="input"
+           type="text"
+           id="q"
+           name="q"
+           value="{{ query or '' }}"
+           placeholder="Search by location or test name">
   </p>
   <p>
     <button type="submit">Search</button>
@@ -23,6 +29,7 @@
 
 {% if results %}
 <div class="table-container">
+  <h3 style="text-align:center;">Search Results</h3>
   <table class="table">
     <thead>
       <tr>
@@ -31,6 +38,8 @@
         <th>Test Name</th>
         <th>pH Level</th>
         <th>Nitrogen</th>
+        <th>Phosphorus</th>
+        <th>Potassium</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -41,10 +50,15 @@
         <td>{{ soil.field_location }}</td>
         <td>{{ soil.test_name }}</td>
         <td>{{ soil.ph_level }}</td>
-        <td>{{ soil.nitrogen }}</td>
+        <td>{{ soil.nitrogen or '-' }}</td>
+        <td>{{ soil.phosphorus or '-' }}</td>
+        <td>{{ soil.potassium or '-' }}</td>
         <td>
-          <a href="{{ url_for('soil_update', id=soil.analysis_id) }}" class="button">Edit</a>
-          <a href="{{ url_for('soil_delete', id=soil.analysis_id) }}" class="button danger">Delete</a>
+          <a href="{{ url_for('soil_update', analysis_id=soil.analysis_id) }}" class="button">Edit</a>
+          <form action="{{ url_for('soil_delete', analysis_id=soil.analysis_id) }}"
+                method="POST" style="display:inline;">
+            <button type="submit" class="button danger">Delete</button>
+          </form>
         </td>
       </tr>
       {% endfor %}

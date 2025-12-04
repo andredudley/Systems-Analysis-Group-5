@@ -1,56 +1,89 @@
 <!DOCTYPE html>
 <html>
-<title>Crops List</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/css/style.css">
+<head>
+  <title>Crops List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
 
 <body>
 
-<div class="form-container">
-  <center> 
-    <h2>Crops List</h2>
-    <div class="action-buttons">
-      <a href="{{ url_for('crops_create') }}" class="button">Add New Crop</a>
-      <a href="{{ url_for('crops_search') }}" class="button">Search Crops</a>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <i class="fas fa-tractor"></i>
+        <span>Crops</span>
+      </div>
+      <div class="nav-menu">
+        <a href="{{ url_for('dashboard') }}" class="nav-link">
+          <i class="fas fa-back-to-dash"></i> Back to Dashboard
+        </a>
+      </div>
     </div>
-  </center>
-</div>
+  </nav>
 
-<div class="table-container">
-  <table class="table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Crop Name</th>
-        <th>Variety</th>
-        <th>Plant Date</th>
-        <th>Expected Harvest</th>
-        <th>Field Location</th>
-        <th>Area Planted</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for crop in crops %}
-      <tr>
-        <td>{{ crop.crop_id }}</td>
-        <td>{{ crop.crop_name }}</td>
-        <td>{{ crop.variety }}</td>
-        <td>{{ crop.plant_date }}</td>
-        <td>{{ crop.expected_harvest }}</td>
-        <td>{{ crop.field_location }}</td>
-        <td>{{ crop.area_planted }} acres</td>
-        <td>{{ crop.status }}</td>
-        <td>
-          <a href="{{ url_for('crops_update', id=crop.crop_id) }}" class="button">Edit</a>
-          <a href="{{ url_for('crops_delete', id=crop.crop_id) }}" class="button danger">Delete</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+  <div class="form-container">
+    <center>
+      <h2>Crops List</h2>
+      <div class="action-buttons">
+        <a href="{{ url_for('crops_create') }}" class="button">Add New Crop</a>
+        <a href="{{ url_for('crops_search') }}" class="button">Search Crops</a>
+      </div>
+    </center>
+  </div>
+
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Crop Name</th>
+          <th>Variety</th>
+          <th>Plant Date</th>
+          <th>Expected Harvest</th>
+          <th>Field Location</th>
+          <th>Area Planted</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% if rows %}
+          {% for crop in rows %}
+          <tr>
+            <td>{{ crop.crop_id }}</td>
+            <td>{{ crop.crop_name }}</td>
+            <td>{{ crop.variety or '-' }}</td>
+            <td>{{ crop.plant_date }}</td>
+            <td>{{ crop.expected_harvest or '-' }}</td>
+            <td>{{ crop.field_location }}</td>
+            <td>{{ crop.area_planted }}</td>
+            <td>{{ crop.status }}</td>
+
+            <td>
+              <!-- EDIT -->
+              <a href="{{ url_for('crops_update', crop_id=crop.crop_id) }}" class="button">Edit</a>
+
+              <!-- DELETE POST -->
+              <form action="{{ url_for('crops_delete', crop_id=crop.crop_id) }}"
+                    method="POST"
+                    style="display:inline;">
+                <button type="submit" class="button danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="9" style="text-align:center;">No crop records found.</td>
+          </tr>
+        {% endif %}
+      </tbody>
+
+    </table>
+  </div>
 
 </body>
 </html>

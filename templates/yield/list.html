@@ -1,52 +1,93 @@
 <!DOCTYPE html>
 <html>
-<title>Yield List</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/css/style.css">
+<head>
+  <title>Yield List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
 
 <body>
 
-<div class="form-container">
-  <center> 
-    <h2>Yield Estimates List</h2>
-    <div class="action-buttons">
-      <a href="{{ url_for('yield_create') }}" class="button">Add New Yield Estimate</a>
-      <a href="{{ url_for('yield_search') }}" class="button">Search Yield Data</a>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <i class="fas fa-tractor"></i>
+        <span>Yield</span>
+      </div>
+      <div class="nav-menu">
+        <a href="{{ url_for('dashboard') }}" class="nav-link">
+          <i class="fas fa-back-to-dash"></i> Back to Dashboard
+        </a>
+      </div>
     </div>
-  </center>
-</div>
+  </nav>
 
-<div class="table-container">
-  <table class="table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Crop ID</th>
-        <th>Estimated Yield</th>
-        <th>Actual Yield</th>
-        <th>Variance</th>
-        <th>Estimated Date</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for record in yield_data %}
-      <tr>
-        <td>{{ record.estimate_id }}</td>
-        <td>{{ record.crop_id }}</td>
-        <td>{{ record.estimated_yield }}</td>
-        <td>{{ record.actual_yield if record.actual_yield else 'N/A' }}</td>
-        <td>{{ record.variance if record.variance else 'N/A' }}</td>
-        <td>{{ record.estimated_date }}</td>
-        <td>
-          <a href="{{ url_for('yield_update', id=record.estimate_id) }}" class="button">Edit</a>
-          <a href="{{ url_for('yield_delete', id=record.estimate_id) }}" class="button danger">Delete</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+  <div class="form-container">
+    <center>
+      <h2>Yield Estimates List</h2>
+      <div class="action-buttons">
+        <a href="{{ url_for('yield_create') }}" class="button">Add New Yield Estimate</a>
+        <a href="{{ url_for('yield_search') }}" class="button">Search Yield Data</a>
+      </div>
+    </center>
+  </div>
+
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Crop ID</th>
+          <th>Estimated Yield</th>
+          <th>Actual Yield</th>
+          <th>Variance</th>
+          <th>Estimated Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        {% if rows %}
+          {% for record in rows %}
+          <tr>
+            <td>{{ record.estimate_id }}</td>
+            <td>{{ record.crop_id }}</td>
+            <td>{{ record.estimated_yield }}</td>
+
+            <td>{{ record.actual_yield if record.actual_yield != None else 'N/A' }}</td>
+            <td>{{ record.variance if record.variance != None else 'N/A' }}</td>
+
+            <td>{{ record.estimated_date }}</td>
+
+            <td>
+              <!-- EDIT -->
+              <a 
+                href="{{ url_for('yield_update', estimate_id=record.estimate_id) }}" 
+                class="button">
+                Edit
+              </a>
+
+              <!-- DELETE (POST only) -->
+              <form 
+                action="{{ url_for('yield_delete', estimate_id=record.estimate_id) }}"
+                method="POST"
+                style="display:inline;">
+                <button type="submit" class="button danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+
+        {% else %}
+          <tr>
+            <td colspan="7" style="text-align:center;">No yield records found.</td>
+          </tr>
+        {% endif %}
+
+      </tbody>
+    </table>
+  </div>
 
 </body>
 </html>

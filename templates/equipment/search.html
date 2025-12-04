@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html>
-<title>Equipment Search</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/css/style.css">
-
+<head>
+  <title>Equipment Search</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
 <body>
 
 <div class="form-container">
-  <center> <h2>Equipment Search</h2></center>
+  <center><h2>Equipment Search</h2></center>
 </div>
 
 <form class="form" method="GET" action="{{ url_for('equipment_search') }}">
   <p>
     <label>Search Query</label>
-    <input class="input" type="text" id="q" name="q" value="{{ query }}" placeholder="Search by equipment name or type">
+    <input class="input"
+           type="text"
+           id="q"
+           name="q"
+           value="{{ query or '' }}"
+           placeholder="Search by name, type, or status">
   </p>
   <p>
     <button type="submit">Search</button>
@@ -23,6 +29,7 @@
 
 {% if results %}
 <div class="table-container">
+  <h3 style="text-align:center;">Search Results</h3>
   <table class="table">
     <thead>
       <tr>
@@ -32,6 +39,7 @@
         <th>Purchase Date</th>
         <th>Last Maintenance</th>
         <th>Status</th>
+        <th>Location</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -42,11 +50,15 @@
         <td>{{ equip.equip_name }}</td>
         <td>{{ equip.type }}</td>
         <td>{{ equip.purchase_date }}</td>
-        <td>{{ equip.last_maintenance }}</td>
+        <td>{{ equip.last_maintenance or '-' }}</td>
         <td>{{ equip.status }}</td>
+        <td>{{ equip.location or '-' }}</td>
         <td>
-          <a href="{{ url_for('equipment_update', id=equip.equip_id) }}" class="button">Edit</a>
-          <a href="{{ url_for('equipment_delete', id=equip.equip_id) }}" class="button danger">Delete</a>
+          <a href="{{ url_for('equipment_update', equip_id=equip.equip_id) }}" class="button">Edit</a>
+          <form action="{{ url_for('equipment_delete', equip_id=equip.equip_id) }}"
+                method="POST" style="display:inline;">
+            <button type="submit" class="button danger">Delete</button>
+          </form>
         </td>
       </tr>
       {% endfor %}

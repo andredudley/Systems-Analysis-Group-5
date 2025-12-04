@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html>
-<title>Transportation Search</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/css/style.css">
-
+<head>
+  <title>Transportation Search</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
 <body>
 
 <div class="form-container">
-  <center> <h2>Transportation Search</h2></center>
+  <center><h2>Transportation Search</h2></center>
 </div>
 
 <form class="form" method="GET" action="{{ url_for('transportation_search') }}">
   <p>
     <label>Search Query</label>
-    <input class="input" type="text" id="q" name="q" value="{{ query }}" placeholder="Search by driver name, vehicle ID, or route">
+    <input class="input"
+           type="text"
+           id="q"
+           name="q"
+           value="{{ query or '' }}"
+           placeholder="Search by vehicle ID, driver, route, or status">
   </p>
   <p>
     <button type="submit">Search</button>
@@ -23,6 +29,7 @@
 
 {% if results %}
 <div class="table-container">
+  <h3 style="text-align:center;">Search Results</h3>
   <table class="table">
     <thead>
       <tr>
@@ -31,22 +38,29 @@
         <th>Driver Name</th>
         <th>Route</th>
         <th>Depart Date</th>
+        <th>Arrive Date</th>
+        <th>Cargo Date</th>
         <th>Status</th>
         <th>Actions</th>
       </tr>
     </thead>
     <tbody>
-      {% for transport in results %}
+      {% for t in results %}
       <tr>
-        <td>{{ transport.transport_id }}</td>
-        <td>{{ transport.vehicle_id }}</td>
-        <td>{{ transport.driver_name }}</td>
-        <td>{{ transport.route }}</td>
-        <td>{{ transport.depart_date }}</td>
-        <td>{{ transport.status }}</td>
+        <td>{{ t.transport_id }}</td>
+        <td>{{ t.vehicle_id }}</td>
+        <td>{{ t.driver_name }}</td>
+        <td>{{ t.route }}</td>
+        <td>{{ t.depart_date }}</td>
+        <td>{{ t.arrive_date or '-' }}</td>
+        <td>{{ t.cargo_date or '-' }}</td>
+        <td>{{ t.status }}</td>
         <td>
-          <a href="{{ url_for('transportation_update', id=transport.transport_id) }}" class="button">Edit</a>
-          <a href="{{ url_for('transportation_delete', id=transport.transport_id) }}" class="button danger">Delete</a>
+          <a href="{{ url_for('transportation_update', transport_id=t.transport_id) }}" class="button">Edit</a>
+          <form action="{{ url_for('transportation_delete', transport_id=t.transport_id) }}"
+                method="POST" style="display:inline;">
+            <button type="submit" class="button danger">Delete</button>
+          </form>
         </td>
       </tr>
       {% endfor %}

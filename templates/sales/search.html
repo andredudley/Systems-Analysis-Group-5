@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html>
-<title>Sales Search</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/css/style.css">
-
+<head>
+  <title>Sales Search</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
 <body>
 
 <div class="form-container">
-  <center> <h2>Sales Search</h2></center>
+  <center><h2>Sales Search</h2></center>
 </div>
 
 <form class="form" method="GET" action="{{ url_for('sales_search') }}">
   <p>
     <label>Search Query</label>
-    <input class="input" type="text" id="q" name="q" value="{{ query }}" placeholder="Search by customer name or product">
+    <input class="input"
+           type="text"
+           id="q"
+           name="q"
+           value="{{ query or '' }}"
+           placeholder="Search by customer name, product, or status">
   </p>
   <p>
     <button type="submit">Search</button>
@@ -23,14 +29,16 @@
 
 {% if results %}
 <div class="table-container">
+  <h3 style="text-align:center;">Search Results</h3>
   <table class="table">
     <thead>
       <tr>
         <th>ID</th>
-        <th>Customer Name</th>
+        <th>Customer</th>
         <th>Product</th>
         <th>Quantity</th>
-        <th>Total Amount</th>
+        <th>Unit Price</th>
+        <th>Total</th>
         <th>Sale Date</th>
         <th>Payment Status</th>
         <th>Actions</th>
@@ -43,12 +51,16 @@
         <td>{{ sale.customer_name }}</td>
         <td>{{ sale.product }}</td>
         <td>{{ sale.quantity }}</td>
-        <td>${{ sale.total_amt }}</td>
+        <td>{{ "%.2f"|format(sale.unit_price) }}</td>
+        <td>{{ "%.2f"|format(sale.total_amt) }}</td>
         <td>{{ sale.sale_date }}</td>
         <td>{{ sale.payment_status }}</td>
         <td>
-          <a href="{{ url_for('sales_update', id=sale.sale_id) }}" class="button">Edit</a>
-          <a href="{{ url_for('sales_delete', id=sale.sale_id) }}" class="button danger">Delete</a>
+          <a href="{{ url_for('sales_update', sale_id=sale.sale_id) }}" class="button">Edit</a>
+          <form action="{{ url_for('sales_delete', sale_id=sale.sale_id) }}"
+                method="POST" style="display:inline;">
+            <button type="submit" class="button danger">Delete</button>
+          </form>
         </td>
       </tr>
       {% endfor %}

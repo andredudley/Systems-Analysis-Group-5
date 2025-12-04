@@ -1,56 +1,84 @@
 <!DOCTYPE html>
 <html>
-<title>Livestock List</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/css/style.css">
-
+<head>
+  <title>Livestock List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
 <body>
-
-<div class="form-container">
-  <center> 
-    <h2>Livestock List</h2>
-    <div class="action-buttons">
-      <a href="{{ url_for('livestock_create') }}" class="button">Add New Animal</a>
-      <a href="{{ url_for('livestock_search') }}" class="button">Search Livestock</a>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <i class="fas fa-tractor"></i>
+        <span>Livestock</span>
+      </div>
+      <div class="nav-menu">
+        <a href="{{ url_for('dashboard') }}" class="nav-link">
+          <i class="fas fa-back-to-dash"></i> Back to Dashboard
+        </a>
+      </div>
     </div>
-  </center>
-</div>
+  </nav>
 
-<div class="table-container">
-  <table class="table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Species</th>
-        <th>Breed</th>
-        <th>Tag Number</th>
-        <th>Birth Date</th>
-        <th>Weight</th>
-        <th>Health Status</th>
-        <th>Location</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for animal in livestock %}
-      <tr>
-        <td>{{ animal.animal_id }}</td>
-        <td>{{ animal.species }}</td>
-        <td>{{ animal.breed }}</td>
-        <td>{{ animal.tag_number }}</td>
-        <td>{{ animal.birth_date }}</td>
-        <td>{{ animal.weight }} kg</td>
-        <td>{{ animal.health_status }}</td>
-        <td>{{ animal.location }}</td>
-        <td>
-          <a href="{{ url_for('livestock_update', id=animal.animal_id) }}" class="button">Edit</a>
-          <a href="{{ url_for('livestock_delete', id=animal.animal_id) }}" class="button danger">Delete</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+  <div class="form-container">
+    <center>
+      <h2>Livestock List</h2>
+      <div class="action-buttons">
+        <a href="{{ url_for('livestock_create') }}" class="button">Add New Animal</a>
+        <a href="{{ url_for('livestock_search') }}" class="button">Search Livestock</a>
+      </div>
+    </center>
+  </div>
 
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Species</th>
+          <th>Breed</th>
+          <th>Tag Number</th>
+          <th>Birth Date</th>
+          <th>Weight</th>
+          <th>Health Status</th>
+          <th>Location</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if rows %}
+          {% for animal in rows %}
+          <tr>
+            <td>{{ animal.animal_id }}</td>
+            <td>{{ animal.species }}</td>
+            <td>{{ animal.breed }}</td>
+            <td>{{ animal.tag_number }}</td>
+            <td>{{ animal.birth_date }}</td>
+            <td>
+              {% if animal.weight is not none %}
+                {{ animal.weight }} kg
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td>{{ animal.health_status or '-' }}</td>
+            <td>{{ animal.location or '-' }}</td>
+            <td class="action-cell">
+              <a href="{{ url_for('livestock_update', animal_id=animal.animal_id) }}" class="button">Edit</a>
+              <form action="{{ url_for('livestock_delete', animal_id=animal.animal_id) }}" method="POST" style="display:inline;">
+                <button type="submit" class="button danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="9" style="text-align:center;">No livestock records found.</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
 </body>
 </html>

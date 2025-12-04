@@ -1,54 +1,80 @@
 <!DOCTYPE html>
 <html>
-<title>Soil List</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/css/style.css">
-
+<head>
+  <title>Soil List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
 <body>
 
-<div class="form-container">
-  <center> 
-    <h2>Soil Analysis List</h2>
-    <div class="action-buttons">
-      <a href="{{ url_for('soil_create') }}" class="button">Add New Soil Analysis</a>
-      <a href="{{ url_for('soil_search') }}" class="button">Search Soil Data</a>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <i class="fas fa-tractor"></i>
+        <span>Soil</span>
+      </div>
+      <div class="nav-menu">
+        <a href="{{ url_for('dashboard') }}" class="nav-link">
+          <i class="fas fa-back-to-dash"></i> Back to Dashboard
+        </a>
+      </div>
     </div>
-  </center>
-</div>
+  </nav>
 
-<div class="table-container">
-  <table class="table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Field Location</th>
-        <th>Test Name</th>
-        <th>pH Level</th>
-        <th>Nitrogen</th>
-        <th>Phosphorus</th>
-        <th>Potassium</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for soil in soil_data %}
-      <tr>
-        <td>{{ soil.analysis_id }}</td>
-        <td>{{ soil.field_location }}</td>
-        <td>{{ soil.test_name }}</td>
-        <td>{{ soil.ph_level }}</td>
-        <td>{{ soil.nitrogen }}</td>
-        <td>{{ soil.phosphorus }}</td>
-        <td>{{ soil.potassium }}</td>
-        <td>
-          <a href="{{ url_for('soil_update', id=soil.analysis_id) }}" class="button">Edit</a>
-          <a href="{{ url_for('soil_delete', id=soil.analysis_id) }}" class="button danger">Delete</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+  <div class="form-container">
+    <center>
+      <h2>Soil Analysis List</h2>
+      <div class="action-buttons">
+        <a href="{{ url_for('soil_create') }}" class="button">Add New Soil Analysis</a>
+        <a href="{{ url_for('soil_search') }}" class="button">Search Soil Data</a>
+      </div>
+    </center>
+  </div>
+
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Field Location</th>
+          <th>Test Name</th>
+          <th>pH Level</th>
+          <th>Nitrogen</th>
+          <th>Phosphorus</th>
+          <th>Potassium</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {% if rows %}
+          {% for soil_record in rows %}
+          <tr>
+            <td>{{ soil_record.analysis_id }}</td>
+            <td>{{ soil_record.field_location }}</td>
+            <td>{{ soil_record.test_name }}</td>
+            <td>{{ soil_record.ph_level }}</td>
+            <td>{{ soil_record.nitrogen or '-' }}</td>
+            <td>{{ soil_record.phosphorus or '-' }}</td>
+            <td>{{ soil_record.potassium or '-' }}</td>
+            <td>
+              <a href="{{ url_for('soil_update', analysis_id=soil_record.analysis_id) }}" class="button">Edit</a>
+              <form action="{{ url_for('soil_delete', analysis_id=soil_record.analysis_id) }}" method="POST" style="display:inline;">
+                <button type="submit" class="button danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+
+        {% else %}
+          <tr>
+            <td colspan="8" style="text-align:center;">No soil analysis records found.</td>
+          </tr>
+        {% endif %}
+
+      </tbody>
+    </table>
+  </div>
 
 </body>
 </html>

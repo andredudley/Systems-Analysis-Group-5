@@ -1,56 +1,89 @@
 <!DOCTYPE html>
 <html>
-<title>Transportation List</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/css/style.css">
-
+<head>
+  <title>Transportation List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
 <body>
 
-<div class="form-container">
-  <center> 
-    <h2>Transportation List</h2>
-    <div class="action-buttons">
-      <a href="{{ url_for('transportation_create') }}" class="button">Add New Transportation</a>
-      <a href="{{ url_for('transportation_search') }}" class="button">Search Transportation</a>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <i class="fas fa-tractor"></i>
+        <span>Transportation</span>
+      </div>
+      <div class="nav-menu">
+        <a href="{{ url_for('dashboard') }}" class="nav-link">
+          <i class="fas fa-back-to-dash"></i> Back to Dashboard
+        </a>
+      </div>
     </div>
-  </center>
-</div>
+  </nav>
 
-<div class="table-container">
-  <table class="table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Vehicle ID</th>
-        <th>Driver Name</th>
-        <th>Route</th>
-        <th>Depart Date</th>
-        <th>Arrive Date</th>
-        <th>Cargo Date</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for transport in transportation %}
-      <tr>
-        <td>{{ transport.transport_id }}</td>
-        <td>{{ transport.vehicle_id }}</td>
-        <td>{{ transport.driver_name }}</td>
-        <td>{{ transport.route }}</td>
-        <td>{{ transport.depart_date }}</td>
-        <td>{{ transport.arrive_date }}</td>
-        <td>{{ transport.cargo_date }}</td>
-        <td>{{ transport.status }}</td>
-        <td>
-          <a href="{{ url_for('transportation_update', id=transport.transport_id) }}" class="button">Edit</a>
-          <a href="{{ url_for('transportation_delete', id=transport.transport_id) }}" class="button danger">Delete</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+  <div class="form-container">
+    <center>
+      <h2>Transportation List</h2>
+      <div class="action-buttons">
+        <a href="{{ url_for('transportation_create') }}" class="button">Add New Transportation</a>
+        <a href="{{ url_for('transportation_search') }}" class="button">Search Transportation</a>
+      </div>
+    </center>
+  </div>
+
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Vehicle ID</th>
+          <th>Driver Name</th>
+          <th>Route</th>
+          <th>Depart Date</th>
+          <th>Arrive Date</th>
+          <th>Cargo Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {% if rows %}
+          {% for transport_record in rows %}
+          <tr>
+            <td>{{ transport_record.transport_id }}</td>
+            <td>{{ transport_record.vehicle_id }}</td>
+            <td>{{ transport_record.driver_name }}</td>
+            <td>{{ transport_record.route }}</td>
+            <td>{{ transport_record.depart_date }}</td>
+            <td>{{ transport_record.arrive_date or '-' }}</td>
+            <td>{{ transport_record.cargo_date or '-' }}</td>
+            <td>{{ transport_record.status }}</td>
+            <td>
+
+              <!-- EDIT button -->
+              <a href="{{ url_for('transportation_update', transport_id=transport_record.transport_id) }}" class="button">Edit</a>
+
+              <!-- DELETE must be POST -->
+              <form action="{{ url_for('transportation_delete', transport_id=transport_record.transport_id) }}" 
+                    method="POST" 
+                    style="display:inline;">
+                <button type="submit" class="button danger">Delete</button>
+              </form>
+
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="9" style="text-align:center;">No transportation records found.</td>
+          </tr>
+        {% endif %}
+
+      </tbody>
+    </table>
+  </div>
 
 </body>
 </html>

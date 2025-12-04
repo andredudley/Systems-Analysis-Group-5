@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html>
-<title>Weather Search</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/css/style.css">
-
+<head>
+  <title>Weather Search</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
 <body>
 
 <div class="form-container">
-  <center> <h2>Weather Search</h2></center>
+  <center><h2>Weather Search</h2></center>
 </div>
 
 <form class="form" method="GET" action="{{ url_for('weather_search') }}">
   <p>
-    <label>Search by Date</label>
-    <input class="input" type="date" id="q" name="q" value="{{ query }}">
+    <label>Search Query</label>
+    <input class="input"
+           type="text"
+           id="q"
+           name="q"
+           value="{{ query or '' }}"
+           placeholder="Search by date or value (e.g., rainfall)">
   </p>
   <p>
     <button type="submit">Search</button>
@@ -23,6 +29,7 @@
 
 {% if results %}
 <div class="table-container">
+  <h3 style="text-align:center;">Search Results</h3>
   <table class="table">
     <thead>
       <tr>
@@ -36,17 +43,20 @@
       </tr>
     </thead>
     <tbody>
-      {% for weather in results %}
+      {% for w in results %}
       <tr>
-        <td>{{ weather.weather_id }}</td>
-        <td>{{ weather.record_date }}</td>
-        <td>{{ weather.temp_low }}°C</td>
-        <td>{{ weather.rainfall }} mm</td>
-        <td>{{ weather.humidity }}%</td>
-        <td>{{ weather.wind_speed }} km/h</td>
+        <td>{{ w.weather_id }}</td>
+        <td>{{ w.record_date }}</td>
+        <td>{{ w.temp_low }}</td>
+        <td>{{ w.rainfall }}</td>
+        <td>{{ w.humidity }}</td>
+        <td>{{ w.wind_speed }}</td>
         <td>
-          <a href="{{ url_for('weather_update', id=weather.weather_id) }}" class="button">Edit</a>
-          <a href="{{ url_for('weather_delete', id=weather.weather_id) }}" class="button danger">Delete</a>
+          <a href="{{ url_for('weather_update', weather_id=w.weather_id) }}" class="button">Edit</a>
+          <form action="{{ url_for('weather_delete', weather_id=w.weather_id) }}"
+                method="POST" style="display:inline;">
+            <button type="submit" class="button danger">Delete</button>
+          </form>
         </td>
       </tr>
       {% endfor %}

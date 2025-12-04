@@ -15,16 +15,15 @@
                 <i class="fas fa-tractor"></i> Sky Acres Farm
             </div>
             <div class="nav-menu">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="login.html" class="nav-link">Login</a>
-                <a href="about.html" class="nav-link">About</a>
+                <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+                <a href="{{ url_for('login') }}" class="nav-link">Login</a>
             </div>
         </div>
     </nav>
 
     <!-- Registration Form -->
     <div class="login-container">
-        <form class="login-form" action="dashboard.html" method="POST">
+        <form class="login-form" action="{{ url_for('register') }}" method="POST">
             <div class="form-header">
                 <h2>Create Your Farmer Account</h2>
                 <p>Join Sky Acres Farm Management System</p>
@@ -58,7 +57,7 @@
             <button type="submit" class="btn btn-primary btn-full">Register</button>
 
             <div class="form-footer">
-                <p>Already have an account? <a href="login.html">Login here</a></p>
+                <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
             </div>
         </form>
     </div>

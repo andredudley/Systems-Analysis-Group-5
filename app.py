@@ -1,928 +1,1506 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
-import os
+import mysql.connector
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key-here'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sky_acres.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.secret_key = 'your-secret-key-here'
 
-db = SQLAlchemy(app)
+# ------------------------------
+# DATABASE CONNECTION
+# ------------------------------
+def get_db():
+    return mysql.connector.connect(
+        host='dudleezy.mysql.pythonanywhere-services.com',
+        user='dudleezy',
+        password='AtDj07092003',     # <-- REPLACE AFTER TESTING
+        database='dudleezy$skyacres'
+    )
 
-# Database Models
-class Vegetation(db.Model):
-    vi_id = db.Column(db.Integer, primary_key=True)
-    field_location = db.Column(db.String(100), nullable=False)
-    measure_date = db.Column(db.Date, nullable=False)
-    ndvi_value = db.Column(db.Float, nullable=False)
-    crop_health = db.Column(db.String(50), nullable=False)
-    notes = db.Column(db.Text)
+# ------------------------------
+# GENERIC SQL HELPERS
+# ------------------------------
+def fetch_all(query, params=None):
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute(query, params or ())
+    results = cursor.fetchall()
+    cursor.close()
+    db.close()
+    return results
 
-class Employees(db.Model):
-    emp_id = db.Column(db.Integer, primary_key=True)
-    FName = db.Column(db.String(50), nullable=False)
-    LName = db.Column(db.String(50), nullable=False)
-    position = db.Column(db.String(100), nullable=False)
-    hire_date = db.Column(db.Date, nullable=False)
-    phone = db.Column(db.String(20))
-    email = db.Column(db.String(100))
+def fetch_one(query, params=None):
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute(query, params or ())
+    result = cursor.fetchone()
+    cursor.close()
+    db.close()
+    return result
 
-class Soil(db.Model):
-    analysis_id = db.Column(db.Integer, primary_key=True)
-    field_location = db.Column(db.String(100), nullable=False)
-    test_name = db.Column(db.String(100), nullable=False)
-    ph_level = db.Column(db.Float, nullable=False)
-    nitrogen = db.Column(db.Float)
-    phosphorus = db.Column(db.Float)
-    potassium = db.Column(db.Float)
+def execute_query(query, params=None):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute(query, params or ())
+    db.commit()
+    cursor.close()
+    db.close()
 
-class Storage(db.Model):
-    Storage_id = db.Column(db.Integer, primary_key=True)
-    product_name = db.Column(db.String(100), nullable=False)
-    quantity = db.Column(db.Float, nullable=False)
-    unit = db.Column(db.String(20), nullable=False)
-    storage_location = db.Column(db.String(100), nullable=False)
-    entry_date = db.Column(db.Date, nullable=False)
-    condition = db.Column(db.String(50))
 
-class Sales(db.Model):
-    sale_id = db.Column(db.Integer, primary_key=True)
-    customer_name = db.Column(db.String(100), nullable=False)
-    product = db.Column(db.String(100), nullable=False)
-    quantity = db.Column(db.Float, nullable=False)
-    unit_price = db.Column(db.Float, nullable=False)
-    total_amt = db.Column(db.Float, nullable=False)
-    sale_date = db.Column(db.Date, nullable=False)
-    payment_status = db.Column(db.String(20), nullable=False)
+# ============================================================
+# USER AUTHENTICATION
+# ============================================================
 
-class Crops(db.Model):
-    crop_id = db.Column(db.Integer, primary_key=True)
-    crop_name = db.Column(db.String(100), nullable=False)
-    variety = db.Column(db.String(100))
-    plant_date = db.Column(db.Date, nullable=False)
-    expected_harvest = db.Column(db.Date)
-    field_location = db.Column(db.String(100), nullable=False)
-    area_planted = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(50), nullable=False)
-    notes = db.Column(db.Text)
-    created_by = db.Column(db.Integer, db.ForeignKey('users.user_id'))
-
-class Livestock(db.Model):
-    animal_id = db.Column(db.Integer, primary_key=True)
-    species = db.Column(db.String(50), nullable=False)
-    breed = db.Column(db.String(50))
-    tag_number = db.Column(db.String(50), unique=True)
-    birth_date = db.Column(db.Date)
-    weight = db.Column(db.Float)
-    health_status = db.Column(db.String(50))
-    location = db.Column(db.String(100))
-
-class Equipment(db.Model):
-    equip_id = db.Column(db.Integer, primary_key=True)
-    equip_name = db.Column(db.String(100), nullable=False)
-    type = db.Column(db.String(50), nullable=False)
-    purchase_date = db.Column(db.Date, nullable=False)
-    last_maintenance = db.Column(db.Date)
-    status = db.Column(db.String(50), nullable=False)
-    location = db.Column(db.String(100))
-
-class Weather(db.Model):
-    weather_id = db.Column(db.Integer, primary_key=True)
-    record_date = db.Column(db.Date, nullable=False)
-    temp_low = db.Column(db.Float)
-    rainfall = db.Column(db.Float)
-    humidity = db.Column(db.Float)
-    wind_speed = db.Column(db.Float)
-
-class MarketingCampaigns(db.Model):
-    campaign_id = db.Column(db.Integer, primary_key=True)
-    campaign_name = db.Column(db.String(100), nullable=False)
-    start_date = db.Column(db.Date, nullable=False)
-    end_date = db.Column(db.Date)
-    budget = db.Column(db.Float)
-    target_audience = db.Column(db.String(200))
-    status = db.Column(db.String(50), nullable=False)
-
-class Transportation(db.Model):
-    transport_id = db.Column(db.Integer, primary_key=True)
-    vehicle_id = db.Column(db.String(50), nullable=False)
-    driver_name = db.Column(db.String(100), nullable=False)
-    route = db.Column(db.String(200), nullable=False)
-    depart_date = db.Column(db.DateTime, nullable=False)
-    arrive_date = db.Column(db.DateTime)
-    cargo_date = db.Column(db.Date)
-    status = db.Column(db.String(50), nullable=False)
-
-class Yield(db.Model):
-    estimate_id = db.Column(db.Integer, primary_key=True)
-    crop_id = db.Column(db.Integer, db.ForeignKey('crops.crop_id'), nullable=False)
-    estimated_yield = db.Column(db.Float, nullable=False)
-    estimated_date = db.Column(db.Date, nullable=False)
-    actual_yield = db.Column(db.Float)
-    variance = db.Column(db.Float)
-
-class Users(db.Model):
-    user_id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
-
-# Main Routes
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('user-authentication/index.html')
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        # Add authentication logic here
-        user = Users.query.filter_by(username=username).first()
-        if user and user.password == password:  # In production, use proper password hashing
-            flash('Login successful!', 'success')
+        username = request.form.get('username')
+        password_input = request.form.get('password')
+
+        user = fetch_one(
+            "SELECT * FROM Users WHERE username=%s AND password=%s",
+            (username, password_input)
+        )
+
+        if user:
+            session['user'] = user['username']
             return redirect(url_for('dashboard'))
         else:
-            flash('Invalid credentials!', 'error')
-    return render_template('login.html')
+            flash('Invalid username or password', 'error')
 
-@app.route('/dashboard')
+    return render_template('user-authentication/login.html')
+
+@app.route('/register/', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email    = request.form.get('email')
+        password = request.form.get('password')
+
+        execute_query(
+            "INSERT INTO Users(username, email, password) VALUES (%s, %s, %s)",
+            (username, email, password)
+        )
+
+        flash('Registration successful! Please login.', 'success')
+        return redirect(url_for('login'))
+
+    return render_template('user-authentication/register.html')
+
+
+@app.route('/dashboard/')
 def dashboard():
-    return render_template('dashboard.html')
+    if 'user' not in session:
+        return redirect(url_for('login'))
 
-# Vegetation Routes
-@app.route('/vegetation')
-def vegetation_list():
-    vegetation_data = Vegetation.query.all()
-    return render_template('vegetation/list.html', vegetation=vegetation_data)
+    # --- DASHBOARD METRICS ---
 
-@app.route('/vegetation/create', methods=['GET', 'POST'])
-def vegetation_create():
-    if request.method == 'POST':
-        new_vegetation = Vegetation(
-            field_location=request.form['field_location'],
-            measure_date=datetime.strptime(request.form['measure_date'], '%Y-%m-%d'),
-            ndvi_value=float(request.form['ndvi_value']),
-            crop_health=request.form['crop_health'],
-            notes=request.form.get('notes', '')
-        )
-        db.session.add(new_vegetation)
-        db.session.commit()
-        flash('Vegetation data added successfully!', 'success')
-        return redirect(url_for('vegetation_list'))
-    return render_template('vegetation/create.html')
+    # Crops count
+    crops_count = fetch_one("SELECT COUNT(*) AS count FROM crops")['count']
 
-@app.route('/vegetation/search')
-def vegetation_search():
-    query = request.args.get('q', '')
-    if query:
-        results = Vegetation.query.filter(
-            Vegetation.field_location.contains(query) |
-            Vegetation.crop_health.contains(query)
-        ).all()
-    else:
-        results = []
-    return render_template('vegetation/search.html', results=results, query=query)
+    # Livestock count
+    livestock_count = fetch_one("SELECT COUNT(*) AS count FROM livestock")['count']
 
-@app.route('/vegetation/update/<int:id>', methods=['GET', 'POST'])
-def vegetation_update(id):
-    vegetation = Vegetation.query.get_or_404(id)
-    if request.method == 'POST':
-        vegetation.field_location = request.form['field_location']
-        vegetation.measure_date = datetime.strptime(request.form['measure_date'], '%Y-%m-%d')
-        vegetation.ndvi_value = float(request.form['ndvi_value'])
-        vegetation.crop_health = request.form['crop_health']
-        vegetation.notes = request.form.get('notes', '')
-        db.session.commit()
-        flash('Vegetation data updated successfully!', 'success')
-        return redirect(url_for('vegetation_list'))
-    return render_template('vegetation/update.html', vegetation=vegetation)
+    # Equipment count + maintenance alerts
+    equipment_total = fetch_one("SELECT COUNT(*) AS count FROM equipment")['count']
+    equipment_maintenance = fetch_one(
+        "SELECT COUNT(*) AS count FROM equipment WHERE status='Needs Maintenance'"
+    )['count']
 
-@app.route('/vegetation/delete/<int:id>', methods=['GET', 'POST'])
-def vegetation_delete(id):
-    vegetation = Vegetation.query.get_or_404(id)
-    if request.method == 'POST':
-        db.session.delete(vegetation)
-        db.session.commit()
-        flash('Vegetation data deleted successfully!', 'success')
-        return redirect(url_for('vegetation_list'))
-    return render_template('vegetation/delete.html', vegetation=vegetation)
+    # Sales total revenue (this month)
+    sales_revenue = fetch_one("""
+        SELECT COALESCE(SUM(total_amt),0) AS total
+        FROM sales
+        WHERE MONTH(sale_date) = MONTH(CURRENT_DATE())
+          AND YEAR(sale_date) = YEAR(CURRENT_DATE())
+    """)['total']
 
-# Employees Routes
-@app.route('/employees')
-def employees_list():
-    employees_data = Employees.query.all()
-    return render_template('employees/list.html', employees=employees_data)
+    # Employees count
+    employees_count = fetch_one("SELECT COUNT(*) AS count FROM employees")['count']
 
-@app.route('/employees/create', methods=['GET', 'POST'])
-def employees_create():
-    if request.method == 'POST':
-        new_employee = Employees(
-            FName=request.form['FName'],
-            LName=request.form['LName'],
-            position=request.form['position'],
-            hire_date=datetime.strptime(request.form['hire_date'], '%Y-%m-%d'),
-            phone=request.form.get('phone', ''),
-            email=request.form.get('email', '')
-        )
-        db.session.add(new_employee)
-        db.session.commit()
-        flash('Employee added successfully!', 'success')
-        return redirect(url_for('employees_list'))
-    return render_template('employees/create.html')
+    # Storage count + low stock
+    storage_total = fetch_one("SELECT COUNT(*) AS count FROM storage")['count']
+    low_stock = fetch_one("SELECT COUNT(*) AS count FROM storage WHERE quantity < 10")['count']
 
-@app.route('/employees/search')
-def employees_search():
-    query = request.args.get('q', '')
-    if query:
-        results = Employees.query.filter(
-            Employees.FName.contains(query) |
-            Employees.LName.contains(query) |
-            Employees.position.contains(query)
-        ).all()
-    else:
-        results = []
-    return render_template('employees/search.html', results=results, query=query)
+    # Transportation count
+    transportation_count = fetch_one("SELECT COUNT(*) AS count FROM transportation")['count']
 
-@app.route('/employees/update/<int:id>', methods=['GET', 'POST'])
-def employees_update(id):
-    employee = Employees.query.get_or_404(id)
-    if request.method == 'POST':
-        employee.FName = request.form['FName']
-        employee.LName = request.form['LName']
-        employee.position = request.form['position']
-        employee.hire_date = datetime.strptime(request.form['hire_date'], '%Y-%m-%d')
-        employee.phone = request.form.get('phone', '')
-        employee.email = request.form.get('email', '')
-        db.session.commit()
-        flash('Employee updated successfully!', 'success')
-        return redirect(url_for('employees_list'))
-    return render_template('employees/update.html', employee=employee)
+    # Soil analysis count
+    soil_count = fetch_one("SELECT COUNT(*) AS count FROM soil")['count']
 
-@app.route('/employees/delete/<int:id>', methods=['GET', 'POST'])
-def employees_delete(id):
-    employee = Employees.query.get_or_404(id)
-    if request.method == 'POST':
-        db.session.delete(employee)
-        db.session.commit()
-        flash('Employee deleted successfully!', 'success')
-        return redirect(url_for('employees_list'))
-    return render_template('employees/delete.html', employee=employee)
+    # Marketing campaigns count
+    marketing_count = fetch_one("SELECT COUNT(*) AS count FROM marketing_campaigns")['count']
 
-# Soil Routes
-@app.route('/soil')
-def soil_list():
-    soil_data = Soil.query.all()
-    return render_template('soil/list.html', soil_data=soil_data)
+    # Vegetation count
+    vegetation_count = fetch_one("SELECT COUNT(*) AS count FROM vegetation")['count']
 
-@app.route('/soil/create', methods=['GET', 'POST'])
-def soil_create():
-    if request.method == 'POST':
-        new_soil = Soil(
-            field_location=request.form['field_location'],
-            test_name=request.form['test_name'],
-            ph_level=float(request.form['ph_level']),
-            nitrogen=float(request.form.get('nitrogen', 0)) if request.form.get('nitrogen') else None,
-            phosphorus=float(request.form.get('phosphorus', 0)) if request.form.get('phosphorus') else None,
-            potassium=float(request.form.get('potassium', 0)) if request.form.get('potassium') else None
-        )
-        db.session.add(new_soil)
-        db.session.commit()
-        flash('Soil analysis added successfully!', 'success')
-        return redirect(url_for('soil_list'))
-    return render_template('soil/create.html')
+    # Weather records
+    weather_count = fetch_one("SELECT COUNT(*) AS count FROM weather")['count']
 
-@app.route('/soil/search')
-def soil_search():
-    query = request.args.get('q', '')
-    if query:
-        results = Soil.query.filter(
-            Soil.field_location.contains(query) |
-            Soil.test_name.contains(query)
-        ).all()
-    else:
-        results = []
-    return render_template('soil/search.html', results=results, query=query)
+    # Yield count
+    yield_count = fetch_one("SELECT COUNT(*) AS count FROM yield")['count']
 
-@app.route('/soil/update/<int:id>', methods=['GET', 'POST'])
-def soil_update(id):
-    soil = Soil.query.get_or_404(id)
-    if request.method == 'POST':
-        soil.field_location = request.form['field_location']
-        soil.test_name = request.form['test_name']
-        soil.ph_level = float(request.form['ph_level'])
-        soil.nitrogen = float(request.form.get('nitrogen', 0)) if request.form.get('nitrogen') else None
-        soil.phosphorus = float(request.form.get('phosphorus', 0)) if request.form.get('phosphorus') else None
-        soil.potassium = float(request.form.get('potassium', 0)) if request.form.get('potassium') else None
-        db.session.commit()
-        flash('Soil analysis updated successfully!', 'success')
-        return redirect(url_for('soil_list'))
-    return render_template('soil/update.html', soil=soil)
 
-@app.route('/soil/delete/<int:id>', methods=['GET', 'POST'])
-def soil_delete(id):
-    soil = Soil.query.get_or_404(id)
-    if request.method == 'POST':
-        db.session.delete(soil)
-        db.session.commit()
-        flash('Soil analysis deleted successfully!', 'success')
-        return redirect(url_for('soil_list'))
-    return render_template('soil/delete.html', soil=soil)
+    # Pass all data to template
+    return render_template(
+        'user-authentication/dashboard.html',
+        crops_count=crops_count,
+        livestock_count=livestock_count,
+        equipment_total=equipment_total,
+        equipment_maintenance=equipment_maintenance,
+        sales_revenue=sales_revenue,
+        employees_count=employees_count,
+        storage_total=storage_total,
+        low_stock=low_stock,
+        transportation_count=transportation_count,
+        soil_count=soil_count,
+        marketing_count=marketing_count,
+        vegetation_count=vegetation_count,
+        weather_count=weather_count,
+        yield_count=yield_count
+    )
 
-# Storage Routes
-@app.route('/storage')
-def storage_list():
-    storage_data = Storage.query.all()
-    return render_template('storage/list.html', storage=storage_data)
 
-@app.route('/storage/create', methods=['GET', 'POST'])
-def storage_create():
-    if request.method == 'POST':
-        new_storage = Storage(
-            product_name=request.form['product_name'],
-            quantity=float(request.form['quantity']),
-            unit=request.form['unit'],
-            storage_location=request.form['storage_location'],
-            entry_date=datetime.strptime(request.form['entry_date'], '%Y-%m-%d'),
-            condition=request.form.get('condition', 'Good')
-        )
-        db.session.add(new_storage)
-        db.session.commit()
-        flash('Storage item added successfully!', 'success')
-        return redirect(url_for('storage_list'))
-    return render_template('storage/create.html')
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    flash('You have been logged out', 'success')
+    return redirect(url_for('index'))
 
-@app.route('/storage/search')
-def storage_search():
-    query = request.args.get('q', '')
-    if query:
-        results = Storage.query.filter(
-            Storage.product_name.contains(query) |
-            Storage.storage_location.contains(query)
-        ).all()
-    else:
-        results = []
-    return render_template('storage/search.html', results=results, query=query)
 
-@app.route('/storage/update/<int:id>', methods=['GET', 'POST'])
-def storage_update(id):
-    storage_item = Storage.query.get_or_404(id)
-    if request.method == 'POST':
-        storage_item.product_name = request.form['product_name']
-        storage_item.quantity = float(request.form['quantity'])
-        storage_item.unit = request.form['unit']
-        storage_item.storage_location = request.form['storage_location']
-        storage_item.entry_date = datetime.strptime(request.form['entry_date'], '%Y-%m-%d')
-        storage_item.condition = request.form.get('condition', 'Good')
-        db.session.commit()
-        flash('Storage item updated successfully!', 'success')
-        return redirect(url_for('storage_list'))
-    return render_template('storage/update.html', storage=storage_item)
+# ============================================================
+# CRUD ROUTE TEMPLATES FOR ALL TABLES
+# - Each section uses:
+#       fetch_all()
+#       execute_query()
+#       fetch_one()
+# ============================================================
 
-@app.route('/storage/delete/<int:id>', methods=['GET', 'POST'])
-def storage_delete(id):
-    storage_item = Storage.query.get_or_404(id)
-    if request.method == 'POST':
-        db.session.delete(storage_item)
-        db.session.commit()
-        flash('Storage item deleted successfully!', 'success')
-        return redirect(url_for('storage_list'))
-    return render_template('storage/delete.html', storage=storage_item)
+# -------------------- CROPS --------------------
 
-# Sales Routes
-@app.route('/sales')
-def sales_list():
-    sales_data = Sales.query.all()
-    return render_template('sales/list.html', sales=sales_data)
-
-@app.route('/sales/create', methods=['GET', 'POST'])
-def sales_create():
-    if request.method == 'POST':
-        new_sale = Sales(
-            customer_name=request.form['customer_name'],
-            product=request.form['product'],
-            quantity=float(request.form['quantity']),
-            unit_price=float(request.form['unit_price']),
-            total_amt=float(request.form['total_amt']),
-            sale_date=datetime.strptime(request.form['sale_date'], '%Y-%m-%d'),
-            payment_status=request.form['payment_status']
-        )
-        db.session.add(new_sale)
-        db.session.commit()
-        flash('Sale added successfully!', 'success')
-        return redirect(url_for('sales_list'))
-    return render_template('sales/create.html')
-
-@app.route('/sales/search')
-def sales_search():
-    query = request.args.get('q', '')
-    if query:
-        results = Sales.query.filter(
-            Sales.customer_name.contains(query) |
-            Sales.product.contains(query)
-        ).all()
-    else:
-        results = []
-    return render_template('sales/search.html', results=results, query=query)
-
-@app.route('/sales/update/<int:id>', methods=['GET', 'POST'])
-def sales_update(id):
-    sale = Sales.query.get_or_404(id)
-    if request.method == 'POST':
-        sale.customer_name = request.form['customer_name']
-        sale.product = request.form['product']
-        sale.quantity = float(request.form['quantity'])
-        sale.unit_price = float(request.form['unit_price'])
-        sale.total_amt = float(request.form['total_amt'])
-        sale.sale_date = datetime.strptime(request.form['sale_date'], '%Y-%m-%d')
-        sale.payment_status = request.form['payment_status']
-        db.session.commit()
-        flash('Sale updated successfully!', 'success')
-        return redirect(url_for('sales_list'))
-    return render_template('sales/update.html', sale=sale)
-
-@app.route('/sales/delete/<int:id>', methods=['GET', 'POST'])
-def sales_delete(id):
-    sale = Sales.query.get_or_404(id)
-    if request.method == 'POST':
-        db.session.delete(sale)
-        db.session.commit()
-        flash('Sale deleted successfully!', 'success')
-        return redirect(url_for('sales_list'))
-    return render_template('sales/delete.html', sale=sale)
-
-# Crops Routes
-@app.route('/crops')
+# LIST CROPS (JOIN USERS FOR CREATED BY)
+@app.route('/crops/')
 def crops_list():
-    crops_data = Crops.query.all()
-    return render_template('crops/list.html', crops=crops_data)
+    rows = fetch_all("""
+        SELECT c.*, u.username AS creator
+        FROM crops c
+        LEFT JOIN Users u ON c.created_by = u.user_id
+        ORDER BY crop_id DESC
+    """)
+    return render_template('crops/list.html', rows=rows)
 
+
+# CREATE CROP
 @app.route('/crops/create', methods=['GET', 'POST'])
 def crops_create():
     if request.method == 'POST':
-        new_crop = Crops(
-            crop_name=request.form['crop_name'],
-            variety=request.form.get('variety', ''),
-            plant_date=datetime.strptime(request.form['plant_date'], '%Y-%m-%d'),
-            expected_harvest=datetime.strptime(request.form['expected_harvest'], '%Y-%m-%d') if request.form.get('expected_harvest') else None,
-            field_location=request.form['field_location'],
-            area_planted=float(request.form['area_planted']),
-            status=request.form['status'],
-            notes=request.form.get('notes', ''),
-            created_by=int(request.form['created_by'])
+
+        # Get user ID for created_by
+        created_by = None
+        if 'user' in session:
+            user = fetch_one(
+                "SELECT user_id FROM Users WHERE username=%s",
+                (session['user'],)
+            )
+            if user:
+                created_by = user['user_id']
+
+        # Clean form fields
+        crop_name = request.form['crop_name']
+        variety = request.form.get('variety') or None
+        plant_date = request.form['plant_date']
+
+        expected_harvest = request.form.get('expected_harvest')
+        if expected_harvest == "":
+            expected_harvest = None
+
+        field_location = request.form['field_location']
+
+        # SAFELY convert number
+        try:
+            area_planted = float(request.form['area_planted'])
+        except ValueError:
+            flash("Area Planted must be a valid number.", "error")
+            return redirect(url_for('crops_create'))
+
+        status = request.form['status']
+        notes = request.form.get('notes') or None
+
+        # All cleaned data here
+        data = (
+            crop_name,
+            variety,
+            plant_date,
+            expected_harvest,
+            field_location,
+            area_planted,
+            status,
+            notes,
+            created_by
         )
-        db.session.add(new_crop)
-        db.session.commit()
-        flash('Crop added successfully!', 'success')
+
+        execute_query("""
+            INSERT INTO crops
+                (crop_name, variety, plant_date, expected_harvest,
+                 field_location, area_planted, status, notes, created_by)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, data)
+
+        flash('Crop created successfully!', 'success')
         return redirect(url_for('crops_list'))
+
     return render_template('crops/create.html')
 
+
+
+# SEARCH CROPS
 @app.route('/crops/search')
 def crops_search():
-    query = request.args.get('q', '')
-    if query:
-        results = Crops.query.filter(
-            Crops.crop_name.contains(query) |
-            Crops.field_location.contains(query)
-        ).all()
-    else:
-        results = []
-    return render_template('crops/search.html', results=results, query=query)
+    query = request.args.get('q', '').strip()
+    results = []
 
-@app.route('/crops/update/<int:id>', methods=['GET', 'POST'])
-def crops_update(id):
-    crop = Crops.query.get_or_404(id)
-    if request.method == 'POST':
-        crop.crop_name = request.form['crop_name']
-        crop.variety = request.form.get('variety', '')
-        crop.plant_date = datetime.strptime(request.form['plant_date'], '%Y-%m-%d')
-        crop.expected_harvest = datetime.strptime(request.form['expected_harvest'], '%Y-%m-%d') if request.form.get('expected_harvest') else None
-        crop.field_location = request.form['field_location']
-        crop.area_planted = float(request.form['area_planted'])
-        crop.status = request.form['status']
-        crop.notes = request.form.get('notes', '')
-        crop.created_by = int(request.form['created_by'])
-        db.session.commit()
-        flash('Crop updated successfully!', 'success')
+    if query:
+        like = f"%{query}%"
+        sql = """
+            SELECT *
+            FROM crops
+            WHERE crop_name LIKE %s
+               OR variety LIKE %s
+               OR field_location LIKE %s
+               OR status LIKE %s
+               OR notes LIKE %s
+        """
+        results = fetch_all(sql, (like, like, like, like, like))
+
+    return render_template('crops/search.html', query=query, results=results)
+
+
+# UPDATE CROP
+@app.route('/crops/update/<int:crop_id>', methods=['GET', 'POST'])
+def crops_update(crop_id):
+    crop = fetch_one("SELECT * FROM crops WHERE crop_id=%s", (crop_id,))
+
+    if not crop:
+        flash("Crop not found.", "error")
         return redirect(url_for('crops_list'))
+
+    if request.method == 'POST':
+
+        created_by = crop['created_by']  # keep original unless updating manually
+
+        data = (
+            request.form['crop_name'],
+            request.form.get('variety'),
+            request.form['plant_date'],
+            request.form.get('expected_harvest'),
+            request.form['field_location'],
+            float(request.form['area_planted']),
+            request.form['status'],
+            request.form.get('notes'),
+            created_by,
+            crop_id
+        )
+
+        execute_query("""
+            UPDATE crops
+            SET crop_name=%s,
+                variety=%s,
+                plant_date=%s,
+                expected_harvest=%s,
+                field_location=%s,
+                area_planted=%s,
+                status=%s,
+                notes=%s,
+                created_by=%s
+            WHERE crop_id=%s
+        """, data)
+
+        flash("Crop updated successfully!", "success")
+        return redirect(url_for('crops_list'))
+
     return render_template('crops/update.html', crop=crop)
 
-@app.route('/crops/delete/<int:id>', methods=['GET', 'POST'])
-def crops_delete(id):
-    crop = Crops.query.get_or_404(id)
-    if request.method == 'POST':
-        db.session.delete(crop)
-        db.session.commit()
-        flash('Crop deleted successfully!', 'success')
-        return redirect(url_for('crops_list'))
-    return render_template('crops/delete.html', crop=crop)
 
-# Livestock Routes
-@app.route('/livestock')
-def livestock_list():
-    livestock_data = Livestock.query.all()
-    return render_template('livestock/list.html', livestock=livestock_data)
+# DELETE CROP
+@app.route('/crops/delete/<int:crop_id>', methods=['POST'])
+def crops_delete(crop_id):
+    execute_query("DELETE FROM crops WHERE crop_id=%s", (crop_id,))
+    flash("Crop deleted successfully!", "success")
+    return redirect(url_for('crops_list'))
 
-@app.route('/livestock/create', methods=['GET', 'POST'])
-def livestock_create():
+
+# -------------------- EMPLOYEES --------------------
+
+# LIST EMPLOYEES
+@app.route('/employees/')
+def employees_list():
+    rows = fetch_all("SELECT * FROM employees ORDER BY emp_id DESC")
+    return render_template('employees/list.html', rows=rows)
+
+
+# CREATE EMPLOYEE
+@app.route('/employees/create', methods=['GET', 'POST'])
+def employees_create():
     if request.method == 'POST':
-        new_animal = Livestock(
-            species=request.form['species'],
-            breed=request.form.get('breed', ''),
-            tag_number=request.form.get('tag_number', ''),
-            birth_date=datetime.strptime(request.form['birth_date'], '%Y-%m-%d') if request.form.get('birth_date') else None,
-            weight=float(request.form['weight']) if request.form.get('weight') else None,
-            health_status=request.form.get('health_status', 'Good'),
-            location=request.form.get('location', '')
+        data = (
+            request.form['FName'],
+            request.form['LName'],
+            request.form['position'],
+            request.form['hire_date'],
+            request.form.get('phone'),
+            request.form.get('email')
         )
-        db.session.add(new_animal)
-        db.session.commit()
-        flash('Animal added successfully!', 'success')
-        return redirect(url_for('livestock_list'))
-    return render_template('livestock/create.html')
 
-@app.route('/livestock/search')
-def livestock_search():
-    query = request.args.get('q', '')
+        execute_query("""
+            INSERT INTO employees (FName, LName, position, hire_date, phone, email)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, data)
+
+        flash('Employee created successfully!', 'success')
+        return redirect(url_for('employees_list'))
+
+    return render_template('employees/create.html')
+
+
+# SEARCH EMPLOYEES
+@app.route('/employees/search')
+def employees_search():
+    query = request.args.get('q', '').strip()
+    results = []
+
     if query:
-        results = Livestock.query.filter(
-            Livestock.species.contains(query) |
-            Livestock.breed.contains(query) |
-            Livestock.tag_number.contains(query)
-        ).all()
-    else:
-        results = []
-    return render_template('livestock/search.html', results=results, query=query)
+        like = f"%{query}%"
+        sql = """
+            SELECT *
+            FROM employees
+            WHERE FName LIKE %s
+               OR LName LIKE %s
+               OR position LIKE %s
+               OR phone LIKE %s
+               OR email LIKE %s
+        """
 
-@app.route('/livestock/update/<int:id>', methods=['GET', 'POST'])
-def livestock_update(id):
-    animal = Livestock.query.get_or_404(id)
+        results = fetch_all(sql, (like, like, like, like, like))
+
+    return render_template('employees/search.html', query=query, results=results)
+
+
+
+
+# UPDATE EMPLOYEE
+@app.route('/employees/update/<int:emp_id>', methods=['GET', 'POST'])
+def employees_update(emp_id):
+    employee = fetch_one("SELECT * FROM employees WHERE emp_id=%s", (emp_id,))
+
+    if not employee:
+        flash("Employee not found.", "error")
+        return redirect(url_for('employees_list'))
+
     if request.method == 'POST':
-        animal.species = request.form['species']
-        animal.breed = request.form.get('breed', '')
-        animal.tag_number = request.form.get('tag_number', '')
-        animal.birth_date = datetime.strptime(request.form['birth_date'], '%Y-%m-%d') if request.form.get('birth_date') else None
-        animal.weight = float(request.form['weight']) if request.form.get('weight') else None
-        animal.health_status = request.form.get('health_status', 'Good')
-        animal.location = request.form.get('location', '')
-        db.session.commit()
-        flash('Animal updated successfully!', 'success')
-        return redirect(url_for('livestock_list'))
-    return render_template('livestock/update.html', animal=animal)
+        data = (
+            request.form['FName'],
+            request.form['LName'],
+            request.form['position'],
+            request.form['hire_date'],
+            request.form.get('phone'),
+            request.form.get('email'),
+            emp_id
+        )
 
-@app.route('/livestock/delete/<int:id>', methods=['GET', 'POST'])
-def livestock_delete(id):
-    animal = Livestock.query.get_or_404(id)
-    if request.method == 'POST':
-        db.session.delete(animal)
-        db.session.commit()
-        flash('Animal deleted successfully!', 'success')
-        return redirect(url_for('livestock_list'))
-    return render_template('livestock/delete.html', animal=animal)
+        execute_query("""
+            UPDATE employees
+            SET FName=%s, LName=%s, position=%s, hire_date=%s, phone=%s, email=%s
+            WHERE emp_id=%s
+        """, data)
 
-# Equipment Routes
-@app.route('/equipment')
+        flash("Employee updated successfully!", "success")
+        return redirect(url_for('employees_list'))
+
+    return render_template('employees/update.html', employee=employee)
+
+
+# DELETE EMPLOYEE
+@app.route('/employees/delete/<int:emp_id>', methods=['POST'])
+def employees_delete(emp_id):
+    execute_query("DELETE FROM employees WHERE emp_id=%s", (emp_id,))
+    flash("Employee deleted successfully!", "success")
+    return redirect(url_for('employees_list'))
+
+
+# -------------------- EQUIPMENT --------------------
+
+# LIST EQUIPMENT
+@app.route('/equipment/')
 def equipment_list():
-    equipment_data = Equipment.query.all()
-    return render_template('equipment/list.html', equipment=equipment_data)
+    rows = fetch_all("SELECT * FROM equipment ORDER BY equip_id DESC")
+    return render_template('equipment/list.html', rows=rows)
 
+
+# CREATE EQUIPMENT
 @app.route('/equipment/create', methods=['GET', 'POST'])
 def equipment_create():
     if request.method == 'POST':
-        new_equipment = Equipment(
-            equip_name=request.form['equip_name'],
-            type=request.form['type'],
-            purchase_date=datetime.strptime(request.form['purchase_date'], '%Y-%m-%d'),
-            last_maintenance=datetime.strptime(request.form['last_maintenance'], '%Y-%m-%d') if request.form.get('last_maintenance') else None,
-            status=request.form['status'],
-            location=request.form.get('location', '')
+        data = (
+            request.form['equip_name'],
+            request.form['type'],
+            request.form['purchase_date'],
+            request.form.get('last_maintenance'),
+            request.form['status'],
+            request.form.get('location')
         )
-        db.session.add(new_equipment)
-        db.session.commit()
-        flash('Equipment added successfully!', 'success')
+
+        execute_query("""
+            INSERT INTO equipment (equip_name, type, purchase_date, last_maintenance, status, location)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, data)
+
+        flash('Equipment created successfully!', 'success')
         return redirect(url_for('equipment_list'))
+
     return render_template('equipment/create.html')
 
+
+# SEARCH EQUIPMENT
 @app.route('/equipment/search')
 def equipment_search():
-    query = request.args.get('q', '')
-    if query:
-        results = Equipment.query.filter(
-            Equipment.equip_name.contains(query) |
-            Equipment.type.contains(query)
-        ).all()
-    else:
-        results = []
-    return render_template('equipment/search.html', results=results, query=query)
+    query = request.args.get('q', '').strip()
+    results = []
 
-@app.route('/equipment/update/<int:id>', methods=['GET', 'POST'])
-def equipment_update(id):
-    equipment = Equipment.query.get_or_404(id)
-    if request.method == 'POST':
-        equipment.equip_name = request.form['equip_name']
-        equipment.type = request.form['type']
-        equipment.purchase_date = datetime.strptime(request.form['purchase_date'], '%Y-%m-%d')
-        equipment.last_maintenance = datetime.strptime(request.form['last_maintenance'], '%Y-%m-%d') if request.form.get('last_maintenance') else None
-        equipment.status = request.form['status']
-        equipment.location = request.form.get('location', '')
-        db.session.commit()
-        flash('Equipment updated successfully!', 'success')
+    if query:
+        like = f"%{query}%"
+        sql = """
+            SELECT *
+            FROM equipment
+            WHERE equip_name LIKE %s
+               OR type LIKE %s
+               OR status LIKE %s
+               OR location LIKE %s
+        """
+        results = fetch_all(sql, (like, like, like, like))
+
+    return render_template('equipment/search.html', query=query, results=results)
+
+
+# UPDATE EQUIPMENT
+@app.route('/equipment/update/<int:equip_id>', methods=['GET', 'POST'])
+def equipment_update(equip_id):
+    equipment = fetch_one("SELECT * FROM equipment WHERE equip_id=%s", (equip_id,))
+
+    if not equipment:
+        flash("Equipment not found.", "error")
         return redirect(url_for('equipment_list'))
+
+    if request.method == 'POST':
+        data = (
+            request.form['equip_name'],
+            request.form['type'],
+            request.form['purchase_date'],
+            request.form.get('last_maintenance'),
+            request.form['status'],
+            request.form.get('location'),
+            equip_id
+        )
+
+        execute_query("""
+            UPDATE equipment
+            SET equip_name=%s, type=%s, purchase_date=%s, last_maintenance=%s,
+                status=%s, location=%s
+            WHERE equip_id=%s
+        """, data)
+
+        flash("Equipment updated successfully!", "success")
+        return redirect(url_for('equipment_list'))
+
     return render_template('equipment/update.html', equipment=equipment)
 
-@app.route('/equipment/delete/<int:id>', methods=['GET', 'POST'])
-def equipment_delete(id):
-    equipment = Equipment.query.get_or_404(id)
-    if request.method == 'POST':
-        db.session.delete(equipment)
-        db.session.commit()
-        flash('Equipment deleted successfully!', 'success')
-        return redirect(url_for('equipment_list'))
-    return render_template('equipment/delete.html', equipment=equipment)
 
-# Weather Routes
-@app.route('/weather')
-def weather_list():
-    weather_data = Weather.query.all()
-    return render_template('weather/list.html', weather_data=weather_data)
+# DELETE EQUIPMENT
+@app.route('/equipment/delete/<int:equip_id>', methods=['POST'])
+def equipment_delete(equip_id):
+    execute_query("DELETE FROM equipment WHERE equip_id=%s", (equip_id,))
+    flash("Equipment deleted successfully!", "success")
+    return redirect(url_for('equipment_list'))
 
-@app.route('/weather/create', methods=['GET', 'POST'])
-def weather_create():
+
+
+# -------------------- LIVESTOCK --------------------
+
+# LIST LIVESTOCK
+@app.route('/livestock/')
+def livestock_list():
+    rows = fetch_all("SELECT * FROM livestock ORDER BY animal_id DESC")
+    return render_template('livestock/list.html', rows=rows)
+
+
+# CREATE LIVESTOCK
+@app.route('/livestock/create', methods=['GET', 'POST'])
+def livestock_create():
     if request.method == 'POST':
-        new_weather = Weather(
-            record_date=datetime.strptime(request.form['record_date'], '%Y-%m-%d'),
-            temp_low=float(request.form['temp_low']) if request.form.get('temp_low') else None,
-            rainfall=float(request.form['rainfall']) if request.form.get('rainfall') else None,
-            humidity=float(request.form['humidity']) if request.form.get('humidity') else None,
-            wind_speed=float(request.form['wind_speed']) if request.form.get('wind_speed') else None
+        data = (
+            request.form['species'],
+            request.form.get('breed'),
+            request.form.get('tag_number'),
+            request.form.get('birth_date'),
+            request.form.get('weight'),
+            request.form.get('health_status'),
+            request.form.get('location')
         )
-        db.session.add(new_weather)
-        db.session.commit()
-        flash('Weather record added successfully!', 'success')
-        return redirect(url_for('weather_list'))
-    return render_template('weather/create.html')
 
-@app.route('/weather/search')
-def weather_search():
-    query = request.args.get('q', '')
-    if query:
         try:
-            search_date = datetime.strptime(query, '%Y-%m-%d')
-            results = Weather.query.filter(Weather.record_date == search_date).all()
-        except ValueError:
-            results = []
-    else:
-        results = []
-    return render_template('weather/search.html', results=results, query=query)
+            execute_query("""
+                INSERT INTO livestock (species, breed, tag_number, birth_date, weight, health_status, location)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, data)
 
-@app.route('/weather/update/<int:id>', methods=['GET', 'POST'])
-def weather_update(id):
-    weather = Weather.query.get_or_404(id)
+            flash('Livestock record created successfully!', 'success')
+            return redirect(url_for('livestock_list'))
+
+        except Exception as e:
+            # Tag number is UNIQUE → handle duplicates gracefully
+            if "Duplicate entry" in str(e):
+                flash("Error: Tag number already exists!", "error")
+            else:
+                flash(f"Database error: {str(e)}", "error")
+
+            return redirect(url_for('livestock_create'))
+
+    return render_template('livestock/create.html')
+
+
+# SEARCH LIVESTOCK
+@app.route('/livestock/search')
+def livestock_search():
+    query = request.args.get('q', '').strip()
+    results = []
+
+    if query:
+        like = f"%{query}%"
+        sql = """
+            SELECT *
+            FROM livestock
+            WHERE species LIKE %s
+               OR breed LIKE %s
+               OR tag_number LIKE %s
+               OR health_status LIKE %s
+               OR location LIKE %s
+        """
+        results = fetch_all(sql, (like, like, like, like, like))
+
+    return render_template('livestock/search.html', query=query, results=results)
+
+# UPDATE LIVESTOCK
+@app.route('/livestock/update/<int:animal_id>', methods=['GET', 'POST'])
+def livestock_update(animal_id):
+    animal = fetch_one("SELECT * FROM livestock WHERE animal_id=%s", (animal_id,))
+
+    if not animal:
+        flash("Livestock record not found.", "error")
+        return redirect(url_for('livestock_list'))
+
     if request.method == 'POST':
-        weather.record_date = datetime.strptime(request.form['record_date'], '%Y-%m-%d')
-        weather.temp_low = float(request.form['temp_low']) if request.form.get('temp_low') else None
-        weather.rainfall = float(request.form['rainfall']) if request.form.get('rainfall') else None
-        weather.humidity = float(request.form['humidity']) if request.form.get('humidity') else None
-        weather.wind_speed = float(request.form['wind_speed']) if request.form.get('wind_speed') else None
-        db.session.commit()
-        flash('Weather record updated successfully!', 'success')
-        return redirect(url_for('weather_list'))
-    return render_template('weather/update.html', weather=weather)
+        data = (
+            request.form['species'],
+            request.form.get('breed'),
+            request.form.get('tag_number'),
+            request.form.get('birth_date'),
+            request.form.get('weight'),
+            request.form.get('health_status'),
+            request.form.get('location'),
+            animal_id
+        )
 
-@app.route('/weather/delete/<int:id>', methods=['GET', 'POST'])
-def weather_delete(id):
-    weather = Weather.query.get_or_404(id)
-    if request.method == 'POST':
-        db.session.delete(weather)
-        db.session.commit()
-        flash('Weather record deleted successfully!', 'success')
-        return redirect(url_for('weather_list'))
-    return render_template('weather/delete.html', weather=weather)
+        try:
+            execute_query("""
+                UPDATE livestock
+                SET species=%s, breed=%s, tag_number=%s, birth_date=%s, weight=%s,
+                    health_status=%s, location=%s
+                WHERE animal_id=%s
+            """, data)
 
-# Marketing Campaigns Routes
-@app.route('/marketing')
+            flash("Livestock record updated successfully!", "success")
+            return redirect(url_for('livestock_list'))
+
+        except Exception as e:
+            if "Duplicate entry" in str(e):
+                flash("Error: Tag number must be unique!", "error")
+            else:
+                flash(f"Database error: {str(e)}", "error")
+
+            return redirect(url_for('livestock_update', animal_id=animal_id))
+
+    return render_template('livestock/update.html', animal=animal)
+
+
+# DELETE LIVESTOCK
+@app.route('/livestock/delete/<int:animal_id>', methods=['POST'])
+def livestock_delete(animal_id):
+    execute_query("DELETE FROM livestock WHERE animal_id=%s", (animal_id,))
+    flash("Livestock record deleted successfully!", "success")
+    return redirect(url_for('livestock_list'))
+
+
+
+# -------------------- MARKETING --------------------
+
+# LIST MARKETING CAMPAIGNS
+@app.route('/marketing/')
 def marketing_list():
-    campaigns_data = MarketingCampaigns.query.all()
-    return render_template('marketing/list.html', campaigns=campaigns_data)
+    rows = fetch_all("SELECT * FROM marketing_campaigns ORDER BY campaign_id DESC")
+    return render_template('marketing/list.html', rows=rows)
 
+
+# CREATE MARKETING CAMPAIGN
 @app.route('/marketing/create', methods=['GET', 'POST'])
 def marketing_create():
     if request.method == 'POST':
-        new_campaign = MarketingCampaigns(
-            campaign_name=request.form['campaign_name'],
-            start_date=datetime.strptime(request.form['start_date'], '%Y-%m-%d'),
-            end_date=datetime.strptime(request.form['end_date'], '%Y-%m-%d') if request.form.get('end_date') else None,
-            budget=float(request.form['budget']) if request.form.get('budget') else None,
-            target_audience=request.form.get('target_audience', ''),
-            status=request.form['status']
+        data = (
+            request.form['campaign_name'],
+            request.form['start_date'],
+            request.form.get('end_date'),
+            request.form.get('budget'),
+            request.form.get('target_audience'),
+            request.form['status']
         )
-        db.session.add(new_campaign)
-        db.session.commit()
-        flash('Marketing campaign added successfully!', 'success')
+
+        execute_query("""
+            INSERT INTO marketing_campaigns
+            (campaign_name, start_date, end_date, budget, target_audience, status)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, data)
+
+        flash('Marketing campaign created successfully!', 'success')
         return redirect(url_for('marketing_list'))
+
     return render_template('marketing/create.html')
 
+
+# SEARCH MARKETING CAMPAIGNS
 @app.route('/marketing/search')
 def marketing_search():
-    query = request.args.get('q', '')
-    if query:
-        results = MarketingCampaigns.query.filter(
-            MarketingCampaigns.campaign_name.contains(query) |
-            MarketingCampaigns.status.contains(query)
-        ).all()
-    else:
-        results = []
-    return render_template('marketing/search.html', results=results, query=query)
+    query = request.args.get('q', '').strip()
+    results = []
 
-@app.route('/marketing/update/<int:id>', methods=['GET', 'POST'])
-def marketing_update(id):
-    campaign = MarketingCampaigns.query.get_or_404(id)
-    if request.method == 'POST':
-        campaign.campaign_name = request.form['campaign_name']
-        campaign.start_date = datetime.strptime(request.form['start_date'], '%Y-%m-%d')
-        campaign.end_date = datetime.strptime(request.form['end_date'], '%Y-%m-%d') if request.form.get('end_date') else None
-        campaign.budget = float(request.form['budget']) if request.form.get('budget') else None
-        campaign.target_audience = request.form.get('target_audience', '')
-        campaign.status = request.form['status']
-        db.session.commit()
-        flash('Marketing campaign updated successfully!', 'success')
+    if query:
+        like = f"%{query}%"
+        sql = """
+            SELECT *
+            FROM marketing_campaigns
+            WHERE campaign_name LIKE %s
+               OR target_audience LIKE %s
+               OR status LIKE %s
+        """
+        results = fetch_all(sql, (like, like, like))
+
+    return render_template('marketing/search.html', query=query, results=results)
+
+
+
+# UPDATE MARKETING CAMPAIGN
+@app.route('/marketing/update/<int:campaign_id>', methods=['GET', 'POST'])
+def marketing_update(campaign_id):
+    campaign = fetch_one("SELECT * FROM marketing_campaigns WHERE campaign_id=%s", (campaign_id,))
+
+    if not campaign:
+        flash("Campaign not found.", "error")
         return redirect(url_for('marketing_list'))
+
+    if request.method == 'POST':
+        data = (
+            request.form['campaign_name'],
+            request.form['start_date'],
+            request.form.get('end_date'),
+            request.form.get('budget'),
+            request.form.get('target_audience'),
+            request.form['status'],
+            campaign_id
+        )
+
+        execute_query("""
+            UPDATE marketing_campaigns
+            SET campaign_name=%s,
+                start_date=%s,
+                end_date=%s,
+                budget=%s,
+                target_audience=%s,
+                status=%s
+            WHERE campaign_id=%s
+        """, data)
+
+        flash("Campaign updated successfully!", "success")
+        return redirect(url_for('marketing_list'))
+
     return render_template('marketing/update.html', campaign=campaign)
 
-@app.route('/marketing/delete/<int:id>', methods=['GET', 'POST'])
-def marketing_delete(id):
-    campaign = MarketingCampaigns.query.get_or_404(id)
+
+# DELETE MARKETING CAMPAIGN
+@app.route('/marketing/delete/<int:campaign_id>', methods=['POST'])
+def marketing_delete(campaign_id):
+    execute_query("DELETE FROM marketing_campaigns WHERE campaign_id=%s", (campaign_id,))
+    flash("Marketing campaign deleted successfully!", "success")
+    return redirect(url_for('marketing_list'))
+
+
+# -------------------- SALES --------------------
+
+# LIST SALES
+@app.route('/sales/')
+def sales_list():
+    rows = fetch_all("SELECT * FROM sales ORDER BY sale_id DESC")
+    return render_template('sales/list.html', rows=rows)
+
+
+# CREATE SALE
+@app.route('/sales/create', methods=['GET', 'POST'])
+def sales_create():
     if request.method == 'POST':
-        db.session.delete(campaign)
-        db.session.commit()
-        flash('Marketing campaign deleted successfully!', 'success')
-        return redirect(url_for('marketing_list'))
-    return render_template('marketing/delete.html', campaign=campaign)
+        # Pull values from form
+        customer_name  = request.form['customer_name']
+        product        = request.form['product']
+        quantity       = float(request.form['quantity'])
+        unit_price     = float(request.form['unit_price'])
+        sale_date      = request.form['sale_date']
+        payment_status = request.form['payment_status']
 
-# Transportation Routes
-@app.route('/transportation')
+        # Compute total amount on the server to avoid bad input
+        total_amt = quantity * unit_price
+
+        data = (
+            customer_name,
+            product,
+            quantity,
+            unit_price,
+            total_amt,
+            sale_date,
+            payment_status
+        )
+
+        execute_query("""
+            INSERT INTO sales
+                (customer_name, product, quantity, unit_price, total_amt, sale_date, payment_status)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, data)
+
+        flash('Sales record created successfully!', 'success')
+        return redirect(url_for('sales_list'))
+
+    return render_template('sales/create.html')
+
+
+# SEARCH SALES
+@app.route('/sales/search')
+def sales_search():
+    query = request.args.get('q', '').strip()
+    results = []
+
+    if query:
+        like = f"%{query}%"
+        sql = """
+            SELECT *
+            FROM sales
+            WHERE customer_name LIKE %s
+               OR product LIKE %s
+               OR payment_status LIKE %s
+        """
+        results = fetch_all(sql, (like, like, like))
+
+    return render_template('sales/search.html', query=query, results=results)
+
+
+
+# UPDATE SALE
+@app.route('/sales/update/<int:sale_id>', methods=['GET', 'POST'])
+def sales_update(sale_id):
+    sale = fetch_one("SELECT * FROM sales WHERE sale_id=%s", (sale_id,))
+
+    if not sale:
+        flash("Sales record not found.", "error")
+        return redirect(url_for('sales_list'))
+
+    if request.method == 'POST':
+        customer_name  = request.form['customer_name']
+        product        = request.form['product']
+        quantity       = float(request.form['quantity'])
+        unit_price     = float(request.form['unit_price'])
+        sale_date      = request.form['sale_date']
+        payment_status = request.form['payment_status']
+
+        total_amt = quantity * unit_price
+
+        data = (
+            customer_name,
+            product,
+            quantity,
+            unit_price,
+            total_amt,
+            sale_date,
+            payment_status,
+            sale_id
+        )
+
+        execute_query("""
+            UPDATE sales
+            SET customer_name=%s,
+                product=%s,
+                quantity=%s,
+                unit_price=%s,
+                total_amt=%s,
+                sale_date=%s,
+                payment_status=%s
+            WHERE sale_id=%s
+        """, data)
+
+        flash("Sales record updated successfully!", "success")
+        return redirect(url_for('sales_list'))
+
+    return render_template('sales/update.html', sale=sale)
+
+
+# DELETE SALE
+@app.route('/sales/delete/<int:sale_id>', methods=['POST'])
+def sales_delete(sale_id):
+    execute_query("DELETE FROM sales WHERE sale_id=%s", (sale_id,))
+    flash("Sales record deleted successfully!", "success")
+    return redirect(url_for('sales_list'))
+
+# -------------------- SOIL --------------------
+
+# LIST SOIL RECORDS
+@app.route('/soil/')
+def soil_list():
+    rows = fetch_all("SELECT * FROM soil ORDER BY analysis_id DESC")
+    return render_template('soil/list.html', rows=rows)
+
+
+# CREATE SOIL RECORD
+@app.route('/soil/create', methods=['GET', 'POST'])
+def soil_create():
+    if request.method == 'POST':
+
+        data = (
+            request.form['field_location'],
+            request.form['test_name'],
+            float(request.form['ph_level']),
+            request.form.get('nitrogen') or None,
+            request.form.get('phosphorus') or None,
+            request.form.get('potassium') or None
+        )
+
+        execute_query("""
+            INSERT INTO soil (field_location, test_name, ph_level, nitrogen, phosphorus, potassium)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, data)
+
+        flash('Soil record created successfully!', 'success')
+        return redirect(url_for('soil_list'))
+
+    return render_template('soil/create.html')
+
+
+# SEARCH SOIL RECORDS
+@app.route('/soil/search')
+def soil_search():
+    query = request.args.get('q', '').strip()
+    results = []
+
+    if query:
+        like = f"%{query}%"
+        sql = """
+            SELECT *
+            FROM soil
+            WHERE field_location LIKE %s
+               OR test_name LIKE %s
+        """
+        results = fetch_all(sql, (like, like))
+
+    return render_template('soil/search.html', query=query, results=results)
+
+
+
+# UPDATE SOIL RECORD
+@app.route('/soil/update/<int:analysis_id>', methods=['GET', 'POST'])
+def soil_update(analysis_id):
+    soil_row = fetch_one("SELECT * FROM soil WHERE analysis_id=%s", (analysis_id,))
+
+    if not soil_row:
+        flash("Soil record not found.", "error")
+        return redirect(url_for('soil_list'))
+
+    if request.method == 'POST':
+        data = (
+            request.form['field_location'],
+            request.form['test_name'],
+            float(request.form['ph_level']),
+            request.form.get('nitrogen') or None,
+            request.form.get('phosphorus') or None,
+            request.form.get('potassium') or None,
+            analysis_id
+        )
+
+        execute_query("""
+            UPDATE soil
+            SET field_location=%s,
+                test_name=%s,
+                ph_level=%s,
+                nitrogen=%s,
+                phosphorus=%s,
+                potassium=%s
+            WHERE analysis_id=%s
+        """, data)
+
+        flash("Soil record updated successfully!", "success")
+        return redirect(url_for('soil_list'))
+
+    return render_template('soil/update.html', soil=soil_row)
+
+
+# DELETE SOIL RECORD
+@app.route('/soil/delete/<int:analysis_id>', methods=['POST'])
+def soil_delete(analysis_id):
+    execute_query("DELETE FROM soil WHERE analysis_id=%s", (analysis_id,))
+    flash("Soil record deleted successfully!", "success")
+    return redirect(url_for('soil_list'))
+
+
+
+# -------------------- STORAGE --------------------
+
+# LIST STORAGE RECORDS
+@app.route('/storage/')
+def storage_list():
+    # Safely select all columns; note the backticks around `condition`
+    sql = """
+        SELECT
+            Storage_id,
+            product_name,
+            quantity,
+            unit,
+            storage_location,
+            entry_date,
+            `condition`
+        FROM storage
+    """
+    rows = fetch_all(sql)
+    return render_template('storage/list.html', rows=rows)
+
+
+
+# CREATE STORAGE RECORD
+@app.route('/storage/create', methods=['GET', 'POST'])
+def storage_create():
+    if request.method == 'POST':
+        data = (
+            request.form['product_name'],
+            float(request.form['quantity']),
+            request.form['unit'],
+            request.form['storage_location'],
+            request.form['entry_date'],
+            request.form.get('condition')
+        )
+
+        execute_query("""
+            INSERT INTO storage (product_name, quantity, unit, storage_location, entry_date, condition)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, data)
+
+        flash('Storage record created successfully!', 'success')
+        return redirect(url_for('storage_list'))
+
+    return render_template('storage/create.html')
+
+
+# SEARCH STORAGE RECORDS
+@app.route('/storage/search')
+def storage_search():
+    query = request.args.get('q', '').strip()
+    results = []
+
+    if query:
+        like = f"%{query}%"
+        sql = """
+            SELECT *
+            FROM storage
+            WHERE product_name LIKE %s
+               OR storage_location LIKE %s
+               OR condition LIKE %s
+        """
+        results = fetch_all(sql, (like, like, like))
+
+    return render_template('storage/search.html', query=query, results=results)
+
+# UPDATE STORAGE RECORD
+@app.route('/storage/update/<int:Storage_id>', methods=['GET', 'POST'])
+def storage_update(Storage_id):
+    record = fetch_one("SELECT * FROM storage WHERE Storage_id=%s", (Storage_id,))
+
+    if not record:
+        flash("Storage record not found.", "error")
+        return redirect(url_for('storage_list'))
+
+    if request.method == 'POST':
+        data = (
+            request.form['product_name'],
+            float(request.form['quantity']),
+            request.form['unit'],
+            request.form['storage_location'],
+            request.form['entry_date'],
+            request.form.get('condition'),
+            Storage_id
+        )
+
+        execute_query("""
+            UPDATE storage
+            SET product_name=%s,
+                quantity=%s,
+                unit=%s,
+                storage_location=%s,
+                entry_date=%s,
+                condition=%s
+            WHERE Storage_id=%s
+        """, data)
+
+        flash("Storage record updated successfully!", "success")
+        return redirect(url_for('storage_list'))
+
+    return render_template('storage/update.html', record=record)
+
+
+# DELETE STORAGE RECORD
+@app.route('/storage/delete/<int:Storage_id>', methods=['POST'])
+def storage_delete(Storage_id):
+    execute_query("DELETE FROM storage WHERE Storage_id=%s", (Storage_id,))
+    flash("Storage record deleted successfully!", "success")
+    return redirect(url_for('storage_list'))
+
+
+# -------------------- TRANSPORTATION --------------------
+
+# LIST TRANSPORTATION RECORDS
+@app.route('/transportation/')
 def transportation_list():
-    transportation_data = Transportation.query.all()
-    return render_template('transportation/list.html', transportation=transportation_data)
+    rows = fetch_all("SELECT * FROM transportation ORDER BY transport_id DESC")
+    return render_template('transportation/list.html', rows=rows)
 
+
+# CREATE TRANSPORTATION RECORD
 @app.route('/transportation/create', methods=['GET', 'POST'])
 def transportation_create():
     if request.method == 'POST':
-        new_transport = Transportation(
-            vehicle_id=request.form['vehicle_id'],
-            driver_name=request.form['driver_name'],
-            route=request.form['route'],
-            depart_date=datetime.strptime(request.form['depart_date'], '%Y-%m-%dT%H:%M'),
-            arrive_date=datetime.strptime(request.form['arrive_date'], '%Y-%m-%dT%H:%M') if request.form.get('arrive_date') else None,
-            cargo_date=datetime.strptime(request.form['cargo_date'], '%Y-%m-%d') if request.form.get('cargo_date') else None,
-            status=request.form['status']
+
+        data = (
+            request.form['vehicle_id'],
+            request.form['driver_name'],
+            request.form['route'],
+            request.form['depart_date'],     # datetime (YYYY-MM-DD HH:MM:SS)
+            request.form.get('arrive_date'), # nullable datetime
+            request.form.get('cargo_date'),  # nullable date
+            request.form['status']
         )
-        db.session.add(new_transport)
-        db.session.commit()
-        flash('Transportation record added successfully!', 'success')
+
+        execute_query("""
+            INSERT INTO transportation
+            (vehicle_id, driver_name, route, depart_date, arrive_date, cargo_date, status)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, data)
+
+        flash('Transportation record created successfully!', 'success')
         return redirect(url_for('transportation_list'))
+
     return render_template('transportation/create.html')
 
+
+# SEARCH TRANSPORTATION RECORDS
 @app.route('/transportation/search')
 def transportation_search():
-    query = request.args.get('q', '')
-    if query:
-        results = Transportation.query.filter(
-            Transportation.driver_name.contains(query) |
-            Transportation.vehicle_id.contains(query) |
-            Transportation.route.contains(query)
-        ).all()
-    else:
-        results = []
-    return render_template('transportation/search.html', results=results, query=query)
+    query = request.args.get('q', '').strip()
+    results = []
 
-@app.route('/transportation/update/<int:id>', methods=['GET', 'POST'])
-def transportation_update(id):
-    transport = Transportation.query.get_or_404(id)
+    if query:
+        like = f"%{query}%"
+        sql = """
+            SELECT *
+            FROM transportation
+            WHERE vehicle_id LIKE %s
+               OR driver_name LIKE %s
+               OR route LIKE %s
+               OR status LIKE %s
+        """
+        results = fetch_all(sql, (like, like, like, like))
+
+    return render_template('transportation/search.html', query=query, results=results)
+
+
+
+# UPDATE TRANSPORTATION RECORD
+@app.route('/transportation/update/<int:transport_id>', methods=['GET', 'POST'])
+def transportation_update(transport_id):
+    record = fetch_one("SELECT * FROM transportation WHERE transport_id=%s", (transport_id,))
+
+    if not record:
+        flash("Transportation record not found.", "error")
+        return redirect(url_for('transportation_list'))
+
     if request.method == 'POST':
-        transport.vehicle_id = request.form['vehicle_id']
-        transport.driver_name = request.form['driver_name']
-        transport.route = request.form['route']
-        transport.depart_date = datetime.strptime(request.form['depart_date'], '%Y-%m-%dT%H:%M')
-        transport.arrive_date = datetime.strptime(request.form['arrive_date'], '%Y-%m-%dT%H:%M') if request.form.get('arrive_date') else None
-        transport.cargo_date = datetime.strptime(request.form['cargo_date'], '%Y-%m-%d') if request.form.get('cargo_date') else None
-        transport.status = request.form['status']
-        db.session.commit()
+        data = (
+            request.form['vehicle_id'],
+            request.form['driver_name'],
+            request.form['route'],
+            request.form['depart_date'],
+            request.form.get('arrive_date'),
+            request.form.get('cargo_date'),
+            request.form['status'],
+            transport_id
+        )
+
+        execute_query("""
+            UPDATE transportation
+            SET vehicle_id=%s,
+                driver_name=%s,
+                route=%s,
+                depart_date=%s,
+                arrive_date=%s,
+                cargo_date=%s,
+                status=%s
+            WHERE transport_id=%s
+        """, data)
+
         flash('Transportation record updated successfully!', 'success')
         return redirect(url_for('transportation_list'))
-    return render_template('transportation/update.html', transportation=transport)
 
-@app.route('/transportation/delete/<int:id>', methods=['GET', 'POST'])
-def transportation_delete(id):
-    transport = Transportation.query.get_or_404(id)
+    return render_template('transportation/update.html', record=record)
+
+
+# DELETE TRANSPORTATION RECORD
+@app.route('/transportation/delete/<int:transport_id>', methods=['POST'])
+def transportation_delete(transport_id):
+    execute_query("DELETE FROM transportation WHERE transport_id=%s", (transport_id,))
+    flash("Transportation record deleted successfully!", "success")
+    return redirect(url_for('transportation_list'))
+
+
+
+# -------------------- VEGETATION --------------------
+
+# LIST VEGETATION RECORDS
+@app.route('/vegetation/')
+def vegetation_list():
+    rows = fetch_all("SELECT * FROM vegetation ORDER BY vi_id DESC")
+    return render_template('vegetation/list.html', rows=rows)
+
+
+# CREATE VEGETATION RECORD
+@app.route('/vegetation/create', methods=['GET', 'POST'])
+def vegetation_create():
     if request.method == 'POST':
-        db.session.delete(transport)
-        db.session.commit()
-        flash('Transportation record deleted successfully!', 'success')
-        return redirect(url_for('transportation_list'))
-    return render_template('transportation/delete.html', transportation=transport)
 
-# Yield Routes
-@app.route('/yield')
+        data = (
+            request.form['field_location'],
+            request.form['measure_date'],
+            float(request.form['ndvi_value']),
+            request.form['crop_health'],
+            request.form.get('notes')
+        )
+
+        execute_query("""
+            INSERT INTO vegetation (field_location, measure_date, ndvi_value, crop_health, notes)
+            VALUES (%s, %s, %s, %s, %s)
+        """, data)
+
+        flash('Vegetation record created successfully!', 'success')
+        return redirect(url_for('vegetation_list'))
+
+    return render_template('vegetation/create.html')
+
+
+# SEARCH VEGETATION RECORDS
+@app.route('/vegetation/search')
+def vegetation_search():
+    query = request.args.get('q', '').strip()
+    results = []
+
+    if query:
+        like = f"%{query}%"
+        sql = """
+            SELECT *
+            FROM vegetation
+            WHERE field_location LIKE %s
+               OR crop_health LIKE %s
+               OR notes LIKE %s
+        """
+        results = fetch_all(sql, (like, like, like))
+
+    return render_template('vegetation/search.html', query=query, results=results)
+
+
+
+# UPDATE VEGETATION RECORD
+@app.route('/vegetation/update/<int:vi_id>', methods=['GET', 'POST'])
+def vegetation_update(vi_id):
+    record = fetch_one("SELECT * FROM vegetation WHERE vi_id=%s", (vi_id,))
+
+    if not record:
+        flash("Vegetation record not found.", "error")
+        return redirect(url_for('vegetation_list'))
+
+    if request.method == 'POST':
+        data = (
+            request.form['field_location'],
+            request.form['measure_date'],
+            float(request.form['ndvi_value']),
+            request.form['crop_health'],
+            request.form.get('notes'),
+            vi_id
+        )
+
+        execute_query("""
+            UPDATE vegetation
+            SET field_location=%s,
+                measure_date=%s,
+                ndvi_value=%s,
+                crop_health=%s,
+                notes=%s
+            WHERE vi_id=%s
+        """, data)
+
+        flash("Vegetation record updated successfully!", "success")
+        return redirect(url_for('vegetation_list'))
+
+    return render_template('vegetation/update.html', record=record)
+
+
+# DELETE VEGETATION RECORD
+@app.route('/vegetation/delete/<int:vi_id>', methods=['POST'])
+def vegetation_delete(vi_id):
+    execute_query("DELETE FROM vegetation WHERE vi_id=%s", (vi_id,))
+    flash("Vegetation record deleted successfully!", "success")
+    return redirect(url_for('vegetation_list'))
+
+
+
+# -------------------- WEATHER --------------------
+
+# LIST WEATHER RECORDS
+@app.route('/weather/')
+def weather_list():
+    rows = fetch_all("SELECT * FROM weather ORDER BY weather_id DESC")
+    return render_template('weather/list.html', rows=rows)
+
+
+# CREATE WEATHER RECORD
+@app.route('/weather/create', methods=['GET', 'POST'])
+def weather_create():
+    if request.method == 'POST':
+
+        data = (
+            request.form['record_date'],
+            request.form.get('temp_low') or None,
+            request.form.get('rainfall') or None,
+            request.form.get('humidity') or None,
+            request.form.get('wind_speed') or None
+        )
+
+        execute_query("""
+            INSERT INTO weather (record_date, temp_low, rainfall, humidity, wind_speed)
+            VALUES (%s, %s, %s, %s, %s)
+        """, data)
+
+        flash('Weather record created successfully!', 'success')
+        return redirect(url_for('weather_list'))
+
+    return render_template('weather/create.html')
+
+
+# SEARCH WEATHER RECORDS
+@app.route('/weather/search')
+def weather_search():
+    query = request.args.get('q', '').strip()
+    results = []
+
+    if query:
+        like = f"%{query}%"
+        sql = """
+            SELECT *
+            FROM weather
+            WHERE record_date LIKE %s
+               OR temp_low LIKE %s
+               OR rainfall LIKE %s
+               OR humidity LIKE %s
+               OR wind_speed LIKE %s
+        """
+        results = fetch_all(sql, (like, like, like, like, like))
+
+    return render_template('weather/search.html', query=query, results=results)
+
+
+# UPDATE WEATHER RECORD
+@app.route('/weather/update/<int:weather_id>', methods=['GET', 'POST'])
+def weather_update(weather_id):
+    record = fetch_one("SELECT * FROM weather WHERE weather_id=%s", (weather_id,))
+
+    if not record:
+        flash("Weather record not found.", "error")
+        return redirect(url_for('weather_list'))
+
+    if request.method == 'POST':
+        data = (
+            request.form['record_date'],
+            request.form.get('temp_low') or None,
+            request.form.get('rainfall') or None,
+            request.form.get('humidity') or None,
+            request.form.get('wind_speed') or None,
+            weather_id
+        )
+
+        execute_query("""
+            UPDATE weather
+            SET record_date=%s,
+                temp_low=%s,
+                rainfall=%s,
+                humidity=%s,
+                wind_speed=%s
+            WHERE weather_id=%s
+        """, data)
+
+        flash("Weather record updated successfully!", "success")
+        return redirect(url_for('weather_list'))
+
+    return render_template('weather/update.html', record=record)
+
+
+# DELETE WEATHER RECORD
+@app.route('/weather/delete/<int:weather_id>', methods=['POST'])
+def weather_delete(weather_id):
+    execute_query("DELETE FROM weather WHERE weather_id=%s", (weather_id,))
+    flash("Weather record deleted successfully!", "success")
+    return redirect(url_for('weather_list'))
+
+
+
+# -------------------- YIELD --------------------
+
+
+# LIST YIELD RECORDS (JOIN CROPS)
+@app.route('/yield/')
 def yield_list():
-    yield_data = Yield.query.all()
-    return render_template('yield/list.html', yield_data=yield_data)
+    rows = fetch_all("""
+        SELECT y.*, c.crop_name
+        FROM yield y
+        JOIN crops c ON y.crop_id = c.crop_id
+        ORDER BY y.estimate_id DESC
+    """)
+    return render_template('yield/list.html', rows=rows)
+
 
 @app.route('/yield/create', methods=['GET', 'POST'])
 def yield_create():
-    if request.method == 'POST':
-        new_yield = Yield(
-            crop_id=int(request.form['crop_id']),
-            estimated_yield=float(request.form['estimated_yield']),
-            estimated_date=datetime.strptime(request.form['estimated_date'], '%Y-%m-%d'),
-            actual_yield=float(request.form['actual_yield']) if request.form.get('actual_yield') else None,
-            variance=float(request.form['variance']) if request.form.get('variance') else None
-        )
-        db.session.add(new_yield)
-        db.session.commit()
-        flash('Yield estimate added successfully!', 'success')
-        return redirect(url_for('yield_list'))
-    return render_template('yield/create.html')
+    crops = fetch_all("SELECT crop_id, crop_name FROM crops ORDER BY crop_name ASC")
 
+    if request.method == 'POST':
+
+        # Required values
+        crop_id = request.form['crop_id']
+        estimated_yield = float(request.form['estimated_yield'])
+        estimated_date = request.form['estimated_date']
+
+        # Optional numeric values (actual_yield, variance)
+        actual = request.form.get('actual_yield')
+        variance = request.form.get('variance')
+
+        actual_yield = float(actual) if actual else None
+        variance_value = float(variance) if variance else None
+
+        data = (
+            crop_id,
+            estimated_yield,
+            estimated_date,
+            actual_yield,
+            variance_value
+        )
+
+        execute_query("""
+            INSERT INTO yield (crop_id, estimated_yield, estimated_date, actual_yield, variance)
+            VALUES (%s, %s, %s, %s, %s)
+        """, data)
+
+        flash('Yield estimate created successfully!', 'success')
+        return redirect(url_for('yield_list'))
+
+    return render_template('yield/create.html', crops=crops)
+
+
+# SEARCH YIELD RECORDS
 @app.route('/yield/search')
 def yield_search():
-    query = request.args.get('q', '')
+    query = request.args.get('q', '').strip()
+    results = []
+
     if query:
-        try:
-            crop_id = int(query)
-            results = Yield.query.filter(Yield.crop_id == crop_id).all()
-        except ValueError:
-            results = []
-    else:
-        results = []
-    return render_template('yield/search.html', results=results, query=query)
+        like = f"%{query}%"
+        sql = """
+            SELECT *
+            FROM yield
+            WHERE estimated_yield LIKE %s
+               OR actual_yield LIKE %s
+               OR variance LIKE %s
+               OR crop_id LIKE %s
+        """
+        results = fetch_all(sql, (like, like, like, like))
 
-@app.route('/yield/update/<int:id>', methods=['GET', 'POST'])
-def yield_update(id):
-    yield_record = Yield.query.get_or_404(id)
-    if request.method == 'POST':
-        yield_record.crop_id = int(request.form['crop_id'])
-        yield_record.estimated_yield = float(request.form['estimated_yield'])
-        yield_record.estimated_date = datetime.strptime(request.form['estimated_date'], '%Y-%m-%d')
-        yield_record.actual_yield = float(request.form['actual_yield']) if request.form.get('actual_yield') else None
-        yield_record.variance = float(request.form['variance']) if request.form.get('variance') else None
-        db.session.commit()
-        flash('Yield estimate updated successfully!', 'success')
+    return render_template('yield/search.html', query=query, results=results)
+
+
+# UPDATE YIELD RECORD
+@app.route('/yield/update/<int:estimate_id>', methods=['GET', 'POST'])
+def yield_update(estimate_id):
+    # fetch record
+    record = fetch_one("""
+        SELECT * FROM yield WHERE estimate_id=%s
+    """, (estimate_id,))
+
+    if not record:
+        flash("Yield estimate not found.", "error")
         return redirect(url_for('yield_list'))
-    return render_template('yield/update.html', yield_data=yield_record)  # Changed 'yield' to 'yield_data'
 
-@app.route('/yield/delete/<int:id>', methods=['GET', 'POST'])
-def yield_delete(id):
-    yield_record = Yield.query.get_or_404(id)
-    if request.method == 'POST':
-        db.session.delete(yield_record)
-        db.session.commit()
-        flash('Yield estimate deleted successfully!', 'success')
-        return redirect(url_for('yield_list'))
-    return render_template('yield/delete.html', yield_data=yield_record)  # Changed 'yield' to 'yield_data'
+    crops = fetch_all("SELECT crop_id, crop_name FROM crops ORDER BY crop_name ASC")
 
-# User Management Routes (Basic)
-@app.route('/register', methods=['GET', 'POST'])
-def register():
     if request.method == 'POST':
-        username = request.form['username']
-        email = request.form['email']
-        password = request.form['password']
-        
-        # Check if user already exists
-        if Users.query.filter_by(username=username).first():
-            flash('Username already exists!', 'error')
-            return redirect(url_for('register'))
-        
-        if Users.query.filter_by(email=email).first():
-            flash('Email already exists!', 'error')
-            return redirect(url_for('register'))
-        
-        new_user = Users(
-            username=username,
-            email=email,
-            password=password  # In production, hash this password
+        data = (
+            request.form['crop_id'],
+            float(request.form['estimated_yield']),
+            request.form['estimated_date'],
+            request.form.get('actual_yield') or None,
+            request.form.get('variance') or None,
+            estimate_id
         )
-        db.session.add(new_user)
-        db.session.commit()
-        flash('Registration successful! Please login.', 'success')
-        return redirect(url_for('login'))
-    return render_template('register.html')
 
+        execute_query("""
+            UPDATE yield
+            SET crop_id=%s,
+                estimated_yield=%s,
+                estimated_date=%s,
+                actual_yield=%s,
+                variance=%s
+            WHERE estimate_id=%s
+        """, data)
+
+        flash("Yield record updated successfully!", "success")
+        return redirect(url_for('yield_list'))
+
+    return render_template('yield/update.html', record=record, crops=crops)
+
+
+# DELETE YIELD RECORD
+@app.route('/yield/delete/<int:estimate_id>', methods=['POST'])
+def yield_delete(estimate_id):
+    execute_query("DELETE FROM yield WHERE estimate_id=%s", (estimate_id,))
+    flash("Yield record deleted successfully!", "success")
+    return redirect(url_for('yield_list'))
+
+
+
+# ------------------------------
+# RUN APP
+# ------------------------------
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        
-        # Create a default admin user if none exists
-        if not Users.query.filter_by(username='admin').first():
-            admin_user = Users(
-                username='admin',
-                email='admin@skyacres.com',
-                password='admin123'  # Change this in production!
-            )
-            db.session.add(admin_user)
-            db.session.commit()
-            print("Default admin user created: admin / admin123")
-    
     app.run(debug=True)

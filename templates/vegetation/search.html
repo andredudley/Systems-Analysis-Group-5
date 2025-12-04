@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html>
-<title>Vegetation Search</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/css/style.css">
-
+<head>
+  <title>Vegetation Search</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
 <body>
 
 <div class="form-container">
-  <center> <h2>Vegetation Search</h2></center>
+  <center><h2>Vegetation Search</h2></center>
 </div>
 
 <form class="form" method="GET" action="{{ url_for('vegetation_search') }}">
   <p>
     <label>Search Query</label>
-    <input class="input" type="text" id="q" name="q" value="{{ query }}" placeholder="Search by field location or crop health">
+    <input class="input"
+           type="text"
+           id="q"
+           name="q"
+           value="{{ query or '' }}"
+           placeholder="Search by location, crop health, or notes">
   </p>
   <p>
     <button type="submit">Search</button>
@@ -23,28 +29,40 @@
 
 {% if results %}
 <div class="table-container">
+  <h3 style="text-align:center;">Search Results</h3>
   <table class="table">
     <thead>
       <tr>
         <th>ID</th>
         <th>Field Location</th>
         <th>Measure Date</th>
-        <th>NDVI Value</th>
+        <th>NDVI</th>
         <th>Crop Health</th>
+        <th>Notes</th>
         <th>Actions</th>
       </tr>
     </thead>
     <tbody>
-      {% for veg in results %}
+      {% for v in results %}
       <tr>
-        <td>{{ veg.vi_id }}</td>
-        <td>{{ veg.field_location }}</td>
-        <td>{{ veg.measure_date }}</td>
-        <td>{{ veg.ndvi_value }}</td>
-        <td>{{ veg.crop_health }}</td>
+        <td>{{ v.vi_id }}</td>
+        <td>{{ v.field_location }}</td>
+        <td>{{ v.measure_date }}</td>
+        <td>{{ v.ndvi_value }}</td>
+        <td>{{ v.crop_health }}</td>
         <td>
-          <a href="{{ url_for('vegetation_update', id=veg.vi_id) }}" class="button">Edit</a>
-          <a href="{{ url_for('vegetation_delete', id=veg.vi_id) }}" class="button danger">Delete</a>
+          {% if v.notes %}
+            {{ v.notes[:40] }}{% if v.notes|length > 40 %}...{% endif %}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td>
+          <a href="{{ url_for('vegetation_update', vi_id=v.vi_id) }}" class="button">Edit</a>
+          <form action="{{ url_for('vegetation_delete', vi_id=v.vi_id) }}"
+                method="POST" style="display:inline;">
+            <button type="submit" class="button danger">Delete</button>
+          </form>
         </td>
       </tr>
       {% endfor %}

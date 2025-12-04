@@ -1,56 +1,89 @@
 <!DOCTYPE html>
 <html>
-<title>Sales List</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/css/style.css">
-
+<head>
+  <title>Sales List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
 <body>
 
-<div class="form-container">
-  <center> 
-    <h2>Sales List</h2>
-    <div class="action-buttons">
-      <a href="{{ url_for('sales_create') }}" class="button">Add New Sale</a>
-      <a href="{{ url_for('sales_search') }}" class="button">Search Sales</a>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <i class="fas fa-tractor"></i>
+        <span>Sales</span>
+      </div>
+      <div class="nav-menu">
+        <a href="{{ url_for('dashboard') }}" class="nav-link">
+          <i class="fas fa-back-to-dash"></i> Back to Dashboard
+        </a>
+      </div>
     </div>
-  </center>
-</div>
+  </nav>
 
-<div class="table-container">
-  <table class="table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Customer Name</th>
-        <th>Product</th>
-        <th>Quantity</th>
-        <th>Unit Price</th>
-        <th>Total Amount</th>
-        <th>Sale Date</th>
-        <th>Payment Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for sale in sales %}
-      <tr>
-        <td>{{ sale.sale_id }}</td>
-        <td>{{ sale.customer_name }}</td>
-        <td>{{ sale.product }}</td>
-        <td>{{ sale.quantity }}</td>
-        <td>${{ sale.unit_price }}</td>
-        <td>${{ sale.total_amt }}</td>
-        <td>{{ sale.sale_date }}</td>
-        <td>{{ sale.payment_status }}</td>
-        <td>
-          <a href="{{ url_for('sales_update', id=sale.sale_id) }}" class="button">Edit</a>
-          <a href="{{ url_for('sales_delete', id=sale.sale_id) }}" class="button danger">Delete</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+  <div class="form-container">
+    <center>
+      <h2>Sales List</h2>
+      <div class="action-buttons">
+        <a href="{{ url_for('sales_create') }}" class="button">Add New Sale</a>
+        <a href="{{ url_for('sales_search') }}" class="button">Search Sales</a>
+      </div>
+    </center>
+  </div>
+
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Customer Name</th>
+          <th>Product</th>
+          <th>Quantity</th>
+          <th>Unit Price</th>
+          <th>Total Amount</th>
+          <th>Sale Date</th>
+          <th>Payment Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {% if rows %}
+          {% for sale in rows %}
+          <tr>
+            <td>{{ sale.sale_id }}</td>
+            <td>{{ sale.customer_name }}</td>
+            <td>{{ sale.product }}</td>
+            <td>{{ sale.quantity }}</td>
+            <td>${{ "%.2f"|format(sale.unit_price) }}</td>
+            <td>${{ "%.2f"|format(sale.total_amt) }}</td>
+            <td>{{ sale.sale_date }}</td>
+            <td>{{ sale.payment_status }}</td>
+            <td>
+
+              <!-- EDIT (uses sale_id param) -->
+              <a href="{{ url_for('sales_update', sale_id=sale.sale_id) }}" class="button">Edit</a>
+
+              <!-- DELETE must be POST -->
+              <form action="{{ url_for('sales_delete', sale_id=sale.sale_id) }}" 
+                    method="POST" 
+                    style="display:inline;">
+                <button type="submit" class="button danger">Delete</button>
+              </form>
+
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="9" style="text-align:center;">No sales records found.</td>
+          </tr>
+        {% endif %}
+
+      </tbody>
+    </table>
+  </div>
 
 </body>
 </html>
